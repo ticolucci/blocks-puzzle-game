@@ -3,6 +3,9 @@ import { PIECE_SHAPES } from '../constants/gameConfig';
 
 const ROTATION_ANGLES = [0, 90, 180, 270];
 
+// Cache for the piece library
+let cachedLibrary = null;
+
 /**
  * Generates all 4 rotation variants for a given shape
  * @param {string} shapeName - Name of the shape
@@ -35,4 +38,15 @@ export function generatePieceLibrary() {
     }
     return a.rotation - b.rotation;
   });
+}
+
+/**
+ * Gets the piece library with lazy initialization and caching
+ * @returns {Array} Cached piece library
+ */
+export function getPieceLibrary() {
+  if (!cachedLibrary) {
+    cachedLibrary = generatePieceLibrary();
+  }
+  return cachedLibrary;
 }
