@@ -6,6 +6,9 @@ const ROTATION_ANGLES = [0, 90, 180, 270];
 // Cache for the piece library
 let cachedLibrary = null;
 
+// Counter for unique runtime IDs
+let nextRuntimeId = 0;
+
 /**
  * Generates all 4 rotation variants for a given shape
  * @param {string} shapeName - Name of the shape
@@ -49,4 +52,30 @@ export function getPieceLibrary() {
     cachedLibrary = generatePieceLibrary();
   }
   return cachedLibrary;
+}
+
+/**
+ * Gets N random pieces from the library with unique runtime IDs
+ * @param {number} count - Number of random pieces to select
+ * @returns {Array} Array of random pieces with runtime IDs
+ */
+export function getRandomPieces(count) {
+  const library = getPieceLibrary();
+  const pieces = [];
+
+  for (let i = 0; i < count; i++) {
+    // Pick a random piece from the library
+    const randomIndex = Math.floor(Math.random() * library.length);
+    const libraryPiece = library[randomIndex];
+
+    // Clone the piece and add unique runtime ID
+    const piece = {
+      ...libraryPiece,
+      runtimeId: nextRuntimeId++,
+    };
+
+    pieces.push(piece);
+  }
+
+  return pieces;
 }
