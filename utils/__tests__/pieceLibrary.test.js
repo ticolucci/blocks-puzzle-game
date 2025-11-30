@@ -1,4 +1,4 @@
-import { generateRotations, generatePieceLibrary, getPieceLibrary } from '../pieceLibrary';
+import { generateRotations, generatePieceLibrary, getPieceLibrary, getRandomPieces } from '../pieceLibrary';
 import { PIECE_SHAPES } from '../../constants/gameConfig';
 
 describe('pieceLibrary', () => {
@@ -164,6 +164,64 @@ describe('pieceLibrary', () => {
         expect(piece).toHaveProperty('rotation');
         expect(piece).toHaveProperty('rotationIndex');
       });
+    });
+  });
+
+  describe('getRandomPieces', () => {
+    test('returns the requested number of random pieces', () => {
+      const pieces = getRandomPieces(3);
+      expect(pieces).toHaveLength(3);
+    });
+
+    test('each piece has a unique runtime ID', () => {
+      const pieces = getRandomPieces(5);
+
+      const runtimeIds = pieces.map(p => p.runtimeId);
+      const uniqueIds = new Set(runtimeIds);
+
+      // All runtime IDs should be unique
+      expect(uniqueIds.size).toBe(5);
+    });
+
+    test('returned pieces have all required fields including runtimeId', () => {
+      const pieces = getRandomPieces(3);
+
+      pieces.forEach(piece => {
+        expect(piece).toHaveProperty('id');
+        expect(piece).toHaveProperty('shapeName');
+        expect(piece).toHaveProperty('shape');
+        expect(piece).toHaveProperty('rotation');
+        expect(piece).toHaveProperty('rotationIndex');
+        expect(piece).toHaveProperty('runtimeId');
+        expect(typeof piece.runtimeId).toBe('number');
+      });
+    });
+
+    test('pieces are selected from the library', () => {
+      const library = getPieceLibrary();
+      const pieces = getRandomPieces(3);
+
+      pieces.forEach(piece => {
+        // Should find a matching piece in library (ignoring runtimeId)
+        const matchInLibrary = library.some(libraryPiece =>
+          libraryPiece.id === piece.id &&
+          libraryPiece.shapeName === piece.shapeName &&
+          libraryPiece.rotation === piece.rotation
+        );
+        expect(matchInLibrary).toBe(true);
+      });
+    });
+
+    test('allows selecting more pieces than library size (with repeats)', () => {
+      const library = getPieceLibrary();
+      const pieces = getRandomPieces(library.length + 10);
+
+      expect(pieces).toHaveLength(library.length + 10);
+
+      // All should still have unique runtime IDs
+      const runtimeIds = pieces.map(p => p.runtimeId);
+      const uniqueIds = new Set(runtimeIds);
+      expect(uniqueIds.size).toBe(library.length + 10);
     });
   });
 });
