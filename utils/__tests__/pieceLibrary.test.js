@@ -1,4 +1,4 @@
-import { generateRotations, generatePieceLibrary } from '../pieceLibrary';
+import { generateRotations, generatePieceLibrary, getPieceLibrary } from '../pieceLibrary';
 import { PIECE_SHAPES } from '../../constants/gameConfig';
 
 describe('pieceLibrary', () => {
@@ -136,6 +136,33 @@ describe('pieceLibrary', () => {
       library.forEach(piece => {
         expect([0, 90, 180, 270]).toContain(piece.rotation);
         expect([0, 1, 2, 3]).toContain(piece.rotationIndex);
+      });
+    });
+  });
+
+  describe('getPieceLibrary', () => {
+    test('returns the same library instance on multiple calls (cached)', () => {
+      const library1 = getPieceLibrary();
+      const library2 = getPieceLibrary();
+
+      // Should return the exact same instance
+      expect(library1).toBe(library2);
+    });
+
+    test('returns a valid piece library', () => {
+      const library = getPieceLibrary();
+
+      // Should have correct number of pieces
+      const shapeCount = Object.keys(PIECE_SHAPES).length;
+      expect(library).toHaveLength(shapeCount * 4);
+
+      // All pieces should have valid structure
+      library.forEach(piece => {
+        expect(piece).toHaveProperty('id');
+        expect(piece).toHaveProperty('shapeName');
+        expect(piece).toHaveProperty('shape');
+        expect(piece).toHaveProperty('rotation');
+        expect(piece).toHaveProperty('rotationIndex');
       });
     });
   });
