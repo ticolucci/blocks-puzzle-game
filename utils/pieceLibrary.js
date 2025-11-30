@@ -1,4 +1,5 @@
 import { rotateMatrix } from './pieceRotation';
+import { PIECE_SHAPES } from '../constants/gameConfig';
 
 const ROTATION_ANGLES = [0, 90, 180, 270];
 
@@ -16,4 +17,19 @@ export function generateRotations(shapeName, shape) {
     rotation: degrees,
     rotationIndex: index,
   }));
+}
+
+/**
+ * Generates the complete piece library with all shapes and rotations
+ * @returns {Array} Array of all pieces (13 shapes × 4 rotations = 52 pieces)
+ */
+export function generatePieceLibrary() {
+  const library = [];
+
+  Object.entries(PIECE_SHAPES).forEach(([shapeName, shape]) => {
+    const rotations = generateRotations(shapeName, shape);
+    library.push(...rotations);
+  });
+
+  return library;
 }
