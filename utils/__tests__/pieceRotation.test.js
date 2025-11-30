@@ -13,10 +13,10 @@ describe('pieceRotation', () => {
 
       // Expected after 90° clockwise rotation:
       // 1 1
-      // 0 1
+      // 1 0
       const expected = [
         [1, 1],
-        [0, 1],
+        [1, 0],
       ];
 
       const result = rotateMatrixClockwise(lShape);
