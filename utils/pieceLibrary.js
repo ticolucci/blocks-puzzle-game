@@ -24,12 +24,15 @@ export function generateRotations(shapeName, shape) {
  * @returns {Array} Array of all pieces (13 shapes × 4 rotations = 52 pieces)
  */
 export function generatePieceLibrary() {
-  const library = [];
+  const library = Object.entries(PIECE_SHAPES).flatMap(([shapeName, shape]) =>
+    generateRotations(shapeName, shape)
+  );
 
-  Object.entries(PIECE_SHAPES).forEach(([shapeName, shape]) => {
-    const rotations = generateRotations(shapeName, shape);
-    library.push(...rotations);
+  // Sort by shape name, then by rotation for predictable ordering
+  return library.sort((a, b) => {
+    if (a.shapeName !== b.shapeName) {
+      return a.shapeName.localeCompare(b.shapeName);
+    }
+    return a.rotation - b.rotation;
   });
-
-  return library;
 }
