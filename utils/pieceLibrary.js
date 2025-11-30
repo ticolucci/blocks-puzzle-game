@@ -57,25 +57,34 @@ export function getPieceLibrary() {
 /**
  * Gets N random pieces from the library with unique runtime IDs
  * @param {number} count - Number of random pieces to select
+ * @param {boolean} shuffle - If true, shuffle library once; if false, pick randomly (default: false)
  * @returns {Array} Array of random pieces with runtime IDs
  */
-export function getRandomPieces(count) {
+export function getRandomPieces(count, shuffle = false) {
   const library = getPieceLibrary();
-  const pieces = [];
 
-  for (let i = 0; i < count; i++) {
-    // Pick a random piece from the library
+  if (shuffle) {
+    // Shuffle the entire library once, then take first N pieces (repeating if needed)
+    const shuffled = [...library].sort(() => Math.random() - 0.5);
+    return Array.from({ length: count }, (_, i) => {
+      const libraryPiece = shuffled[i % shuffled.length];
+      return {
+        ...libraryPiece,
+        shape: libraryPiece.shape.map(row => [...row]), // Deep clone shape array
+        runtimeId: nextRuntimeId++,
+      };
+    });
+  }
+
+  // Pick randomly for each piece
+  return Array.from({ length: count }, () => {
     const randomIndex = Math.floor(Math.random() * library.length);
     const libraryPiece = library[randomIndex];
 
-    // Clone the piece and add unique runtime ID
-    const piece = {
+    return {
       ...libraryPiece,
+      shape: libraryPiece.shape.map(row => [...row]), // Deep clone shape array
       runtimeId: nextRuntimeId++,
     };
-
-    pieces.push(piece);
-  }
-
-  return pieces;
+  });
 }
