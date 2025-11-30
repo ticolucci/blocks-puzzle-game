@@ -1,4 +1,5 @@
-import { generateRotations } from '../pieceLibrary';
+import { generateRotations, generatePieceLibrary } from '../pieceLibrary';
+import { PIECE_SHAPES } from '../../constants/gameConfig';
 
 describe('pieceLibrary', () => {
   describe('generateRotations', () => {
@@ -82,6 +83,60 @@ describe('pieceLibrary', () => {
         [0, 1],
         [1, 1],
       ]);
+    });
+  });
+
+  describe('generatePieceLibrary', () => {
+    test('generates library with all 13 shapes × 4 rotations = 52 pieces', () => {
+      const library = generatePieceLibrary();
+
+      // Should have 13 shapes * 4 rotations = 52 pieces
+      const shapeCount = Object.keys(PIECE_SHAPES).length;
+      expect(library).toHaveLength(shapeCount * 4);
+    });
+
+    test('includes all rotation variants for each shape', () => {
+      const library = generatePieceLibrary();
+
+      // Group by shape name
+      const shapeGroups = library.reduce((acc, piece) => {
+        if (!acc[piece.shapeName]) {
+          acc[piece.shapeName] = [];
+        }
+        acc[piece.shapeName].push(piece);
+        return acc;
+      }, {});
+
+      // Each shape should have 4 variants
+      Object.values(shapeGroups).forEach(group => {
+        expect(group).toHaveLength(4);
+      });
+    });
+
+    test('all pieces have required metadata fields', () => {
+      const library = generatePieceLibrary();
+
+      library.forEach(piece => {
+        expect(piece).toHaveProperty('id');
+        expect(piece).toHaveProperty('shapeName');
+        expect(piece).toHaveProperty('shape');
+        expect(piece).toHaveProperty('rotation');
+        expect(piece).toHaveProperty('rotationIndex');
+        expect(typeof piece.id).toBe('string');
+        expect(typeof piece.shapeName).toBe('string');
+        expect(Array.isArray(piece.shape)).toBe(true);
+        expect(typeof piece.rotation).toBe('number');
+        expect(typeof piece.rotationIndex).toBe('number');
+      });
+    });
+
+    test('rotation values are correct', () => {
+      const library = generatePieceLibrary();
+
+      library.forEach(piece => {
+        expect([0, 90, 180, 270]).toContain(piece.rotation);
+        expect([0, 1, 2, 3]).toContain(piece.rotationIndex);
+      });
     });
   });
 });
