@@ -10,10 +10,12 @@ export default function PieceSelector({
   return (
     <View style={styles.container}>
       {pieces.map((piece, index) => {
-        const isSelected = piece.id === selectedPieceId;
+        // Use runtimeId if available (from library), otherwise fall back to id
+        const pieceId = piece.runtimeId ?? piece.id;
+        const isSelected = pieceId === selectedPieceId;
         return (
           <TouchableOpacity
-            key={piece.id}
+            key={pieceId}
             testID={`piece-slot-${index}`}
             accessibilityState={{ selected: isSelected }}
             style={[styles.slot, isSelected && styles.selectedSlot]}

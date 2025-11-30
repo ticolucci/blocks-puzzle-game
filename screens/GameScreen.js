@@ -3,21 +3,16 @@ import { View, StyleSheet } from 'react-native';
 import GameBoard from '../components/GameBoard';
 import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
-import { GAME_CONFIG, PIECE_SHAPES } from '../constants/gameConfig';
-
-const INITIAL_PIECES = [
-  { id: 1, shape: PIECE_SHAPES.SQUARE_2X2 },
-  { id: 2, shape: PIECE_SHAPES.SQUARE_2X2 },
-  { id: 3, shape: PIECE_SHAPES.SQUARE_2X2 },
-];
+import { GAME_CONFIG } from '../constants/gameConfig';
+import { getRandomPieces } from '../utils/pieceLibrary';
 
 export default function GameScreen() {
   const [score, setScore] = useState(GAME_CONFIG.INITIAL_SCORE);
   const [selectedPieceId, setSelectedPieceId] = useState(null);
-  const [pieces] = useState(INITIAL_PIECES);
+  const [pieces] = useState(() => getRandomPieces(3));
 
   const handlePieceSelect = (piece) => {
-    setSelectedPieceId(piece.id);
+    setSelectedPieceId(piece.runtimeId);
   };
 
   return (
