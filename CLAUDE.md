@@ -24,7 +24,7 @@ read @README.md
 
 **3. REFACTOR Phase - Improve Code Quality**
 - **CRITICAL:** After tests pass (green), MUST suggest refactoring opportunities
-- Present 3-5 specific refactoring options (description-only) for user to choose from
+- Present 1-5 specific refactoring options (description-only) for user to choose from
 - Example refactoring options:
   - Extract helper functions
   - Remove code duplication
@@ -34,6 +34,8 @@ read @README.md
   - Improve type safety
   - Add accessibility improvements
   - Extract constants or configuration
+- Refactorings should be meaningful to the quality of the code (readability/maintenability) without adding new functionality.
+- It's OK (and encouraged) to present fewer suggestions if they are not meaningful
 - User selects which refactorings to apply (if any)
 - After refactoring, run tests again to ensure they still pass
 - Commit message: `refactor: [description of refactoring]`
