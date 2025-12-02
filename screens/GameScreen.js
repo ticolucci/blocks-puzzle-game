@@ -5,14 +5,31 @@ import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
 import { GAME_CONFIG } from '../constants/gameConfig';
 import { getRandomPieces } from '../utils/pieceLibrary';
+import { createEmptyGrid } from '../utils/gridHelpers';
+import { useDragHandlers } from '../hooks/useDragHandlers';
 
 export default function GameScreen() {
   const [score, setScore] = useState(GAME_CONFIG.INITIAL_SCORE);
   const [selectedPieceId, setSelectedPieceId] = useState(null);
   const [pieces] = useState(() => getRandomPieces(3));
+  const [gridState] = useState(() => createEmptyGrid(GAME_CONFIG.BOARD_SIZE));
+  const [boardLayout, setBoardLayout] = useState(null);
+
+  const { dragState, handleDragStart, handleDragMove, handleDragEnd } = useDragHandlers();
 
   const handlePieceSelect = (piece) => {
     setSelectedPieceId(piece.runtimeId);
+  };
+
+  const getBoardLayout = (event) => {
+    const { x, y, width, height } = event.nativeEvent.layout;
+    setBoardLayout({
+      x,
+      y,
+      width,
+      height,
+      cellSize: GAME_CONFIG.CELL_SIZE,
+    });
   };
 
   return (
@@ -22,7 +39,7 @@ export default function GameScreen() {
       </View>
 
       <View style={styles.boardContainer}>
-        <GameBoard size={GAME_CONFIG.BOARD_SIZE} />
+        <GameBoard size={GAME_CONFIG.BOARD_SIZE} onLayout={getBoardLayout} />
       </View>
 
       <View style={styles.pieceSelectorContainer}>
@@ -30,6 +47,9 @@ export default function GameScreen() {
           pieces={pieces}
           selectedPieceId={selectedPieceId}
           onPieceSelect={handlePieceSelect}
+          onDragStart={handleDragStart}
+          onDragMove={handleDragMove}
+          onDragEnd={handleDragEnd}
         />
       </View>
     </View>

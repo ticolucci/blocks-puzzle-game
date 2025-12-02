@@ -78,4 +78,41 @@ describe('GameScreen', () => {
 
     pieceLibrary.getRandomPieces.mockRestore();
   });
+
+  describe('Grid State Management', () => {
+    test('initializes with empty 10x10 grid state', () => {
+      const { getAllByTestId } = render(<GameScreen />);
+      const cells = getAllByTestId(/grid-cell-/);
+
+      // All 100 cells should be rendered
+      expect(cells).toHaveLength(100);
+
+      // All cells should be unfilled initially
+      cells.forEach(cell => {
+        expect(cell.props.accessibilityState.selected).toBe(false);
+      });
+    });
+
+    test('provides onLayout callback to GameBoard', () => {
+      const { UNSAFE_getByType } = render(<GameScreen />);
+      const gameBoard = UNSAFE_getByType(require('../../components/GameBoard').default);
+
+      // GameBoard should receive onLayout prop
+      expect(gameBoard.props.onLayout).toBeDefined();
+      expect(typeof gameBoard.props.onLayout).toBe('function');
+    });
+
+    test('provides drag handler callbacks to PieceSelector', () => {
+      const { UNSAFE_getByType } = render(<GameScreen />);
+      const pieceSelector = UNSAFE_getByType(require('../../components/PieceSelector').default);
+
+      // PieceSelector should receive drag handlers
+      expect(pieceSelector.props.onDragStart).toBeDefined();
+      expect(pieceSelector.props.onDragMove).toBeDefined();
+      expect(pieceSelector.props.onDragEnd).toBeDefined();
+      expect(typeof pieceSelector.props.onDragStart).toBe('function');
+      expect(typeof pieceSelector.props.onDragMove).toBe('function');
+      expect(typeof pieceSelector.props.onDragEnd).toBe('function');
+    });
+  });
 });

@@ -1,11 +1,15 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Piece from './Piece';
 
-export default function PieceSelector({
+function PieceSelector({
   pieces = [],
   selectedPieceId,
   onPieceSelect,
+  onDragStart,
+  onDragMove,
+  onDragEnd,
 }) {
   return (
     <View style={styles.container}>
@@ -29,6 +33,24 @@ export default function PieceSelector({
   );
 }
 
+PieceSelector.propTypes = {
+  pieces: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      runtimeId: PropTypes.number,
+      shape: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
+      shapeName: PropTypes.string,
+      rotation: PropTypes.number,
+      rotationIndex: PropTypes.number,
+    })
+  ),
+  selectedPieceId: PropTypes.number,
+  onPieceSelect: PropTypes.func,
+  onDragStart: PropTypes.func,
+  onDragMove: PropTypes.func,
+  onDragEnd: PropTypes.func,
+};
+
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
@@ -47,3 +69,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#E3F2FD',
   },
 });
+
+export default PieceSelector;
