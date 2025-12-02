@@ -10,6 +10,8 @@ export const COLORS = {
   CELL_BORDER: '#ccc',
   CELL_BACKGROUND: '#fff',
   CELL_FILLED: '#4A90E2',
+  PREVIEW_VALID: 'rgba(76, 175, 80, 0.3)', // Green with 30% opacity
+  PREVIEW_INVALID: 'rgba(244, 67, 54, 0.3)', // Red with 30% opacity
 };
 
 export const PIECE_SHAPES = {
