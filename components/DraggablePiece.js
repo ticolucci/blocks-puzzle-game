@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, memo } from 'react';
+import { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Animated, PanResponder, View } from 'react-native';
 import Piece from './Piece';
+import { GAME_CONFIG } from '../constants/gameConfig';
 
 // Animation timing constants for return-to-origin animation
 const ANIMATION_FRICTION = 8;
@@ -50,6 +51,15 @@ function DraggablePiece({
   // Animated value for smooth dragging
   const pan = useRef(new Animated.ValueXY()).current;
 
+  // Ref to the View component for measuring
+  const viewRef = useRef(null);
+
+  // Store the piece's screen position and center
+  const pieceCenterScreen = useRef({ x: 0, y: 0 });
+
+  // Store the initial touch offset from the piece center
+  const touchOffset = useRef({ x: 0, y: 0 });
+
   // PanResponder for gesture handling
   const panResponder = useRef(
     PanResponder.create({
@@ -58,9 +68,37 @@ function DraggablePiece({
       onMoveShouldSetPanResponder: () => !isPlaced && !disabled,
 
       // Gesture started
-      onPanResponderGrant: () => {
-        if (!isPlaced && !disabled && onDragStart) {
-          onDragStart(piece);
+      onPanResponderGrant: (event) => {
+        if (!isPlaced && !disabled) {
+          // Measure piece position at drag start to get accurate absolute coordinates
+          if (viewRef.current) {
+            event.persist();
+            viewRef.current.measureInWindow((x, y, width, height) => {
+              console.log('measureInWindow at drag start:', { x, y, width, height });
+
+              // Calculate absolute screen position of piece center
+              pieceCenterScreen.current = { 
+                x: x + (width / 2) - GAME_CONFIG.CELL_SIZE, 
+                y: y + (height / 2) - GAME_CONFIG.CELL_SIZE
+              };
+
+              // Calculate offset from touch point to piece center
+              touchOffset.current = {
+                x: event.nativeEvent.pageX - pieceCenterScreen.current.x,
+                y: event.nativeEvent.pageY - pieceCenterScreen.current.y,
+              };
+
+              console.log('Drag started');
+              console.log('Piece center screen:', pieceCenterScreen.current);
+              console.log('Piece center screen (height and width):', );
+
+              console.log('Touch offset from center:', touchOffset.current);
+            });
+          }
+
+          if (onDragStart) {
+            onDragStart(piece);
+          }
         }
       },
 
@@ -70,9 +108,13 @@ function DraggablePiece({
           // Update animated position
           pan.setValue({ x: gestureState.dx, y: gestureState.dy });
 
-          // Call onDragMove with screen coordinates
+          // Call onDragMove with adjusted screen coordinates (accounting for initial touch offset)
           if (onDragMove) {
-            onDragMove(piece, event.nativeEvent.pageX, event.nativeEvent.pageY);
+            onDragMove(
+              piece,
+              event.nativeEvent.pageX - touchOffset.current.x,
+              event.nativeEvent.pageY - touchOffset.current.y
+            );
           }
         }
       },
@@ -114,6 +156,7 @@ function DraggablePiece({
 
   return (
     <Animated.View
+      ref={viewRef}
       testID={testID}
       {...panResponder.panHandlers}
       style={{
@@ -143,4 +186,4 @@ DraggablePiece.propTypes = {
 };
 
 // Memoize component to prevent unnecessary re-renders during drag operations
-export default memo(DraggablePiece);
+export default DraggablePiece;

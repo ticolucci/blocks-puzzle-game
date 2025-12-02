@@ -1,21 +1,4 @@
 /**
- * Validates that a board layout object has all required properties
- * @param {{x: number, y: number, width: number, height: number, cellSize: number}} boardLayout - Board layout to validate
- * @returns {boolean} True if valid, false otherwise
- */
-const validateBoardLayout = (boardLayout) => {
-  return (
-    boardLayout &&
-    typeof boardLayout.x === 'number' &&
-    typeof boardLayout.y === 'number' &&
-    typeof boardLayout.width === 'number' &&
-    typeof boardLayout.height === 'number' &&
-    typeof boardLayout.cellSize === 'number' &&
-    boardLayout.cellSize > 0
-  );
-};
-
-/**
  * Convert screen coordinates to grid position
  * @param {number} screenX - The X coordinate on screen
  * @param {number} screenY - The Y coordinate on screen
@@ -29,7 +12,7 @@ export const screenToGridPosition = (screenX, screenY, boardLayout) => {
     throw new Error('screenX and screenY must be valid numbers');
   }
 
-  if (!validateBoardLayout(boardLayout)) {
+  if (!boardLayout) {
     return null;
   }
 
@@ -58,80 +41,6 @@ export const screenToGridPosition = (screenX, screenY, boardLayout) => {
 };
 
 /**
- * Calculate the bounding box of filled cells in a piece shape
- * @param {number[][]} shape - The 2D array representing the piece shape
- * @returns {{minRow: number, maxRow: number, minCol: number, maxCol: number} | null}
- */
-const calculateBoundingBox = (shape) => {
-  const filledCells = [];
-
-  // Collect all filled cell positions
-  shape.forEach((row, rowIndex) => {
-    row.forEach((cell, colIndex) => {
-      if (cell === 1) {
-        filledCells.push({ row: rowIndex, col: colIndex });
-      }
-    });
-  });
-
-  if (filledCells.length === 0) {
-    return null;
-  }
-
-  // Use reduce for functional approach
-  return filledCells.reduce(
-    (bounds, cell) => ({
-      minRow: Math.min(bounds.minRow, cell.row),
-      maxRow: Math.max(bounds.maxRow, cell.row),
-      minCol: Math.min(bounds.minCol, cell.col),
-      maxCol: Math.max(bounds.maxCol, cell.col),
-    }),
-    {
-      minRow: filledCells[0].row,
-      maxRow: filledCells[0].row,
-      minCol: filledCells[0].col,
-      maxCol: filledCells[0].col,
-    }
-  );
-};
-
-/**
- * Calculate the visual center offset of a piece shape for better drag UX
- * @param {number[][]} shape - The 2D array representing the piece shape
- * @param {number} blockSize - The size of each block in pixels
- * @returns {{offsetX: number, offsetY: number}} The center offset in pixels
- * @throws {Error} If shape is not a valid 2D array or blockSize is not a positive number
- */
-export const calculatePieceCenterOffset = (shape, blockSize) => {
-  // Validate inputs
-  if (!Array.isArray(shape) || shape.length === 0) {
-    throw new Error('shape must be a non-empty 2D array');
-  }
-
-  if (typeof blockSize !== 'number' || blockSize <= 0) {
-    throw new Error('blockSize must be a positive number');
-  }
-
-  // Calculate bounding box
-  const bounds = calculateBoundingBox(shape);
-
-  if (!bounds) {
-    // No filled cells found
-    return { offsetX: 0, offsetY: 0 };
-  }
-
-  // Calculate center of bounding box
-  const centerRow = (bounds.minRow + bounds.maxRow) / 2;
-  const centerCol = (bounds.minCol + bounds.maxCol) / 2;
-
-  // Convert to pixel offset
-  return {
-    offsetX: centerCol * blockSize,
-    offsetY: centerRow * blockSize,
-  };
-};
-
-/**
  * Convert grid position back to screen coordinates
  * @param {{row: number, col: number}} gridPosition - The grid position
  * @param {{x: number, y: number, cellSize: number}} boardLayout - Board layout info
@@ -149,7 +58,7 @@ export const snapToGrid = (gridPosition, boardLayout) => {
   }
 
   // Validate boardLayout (using helper)
-  if (!validateBoardLayout(boardLayout)) {
+  if (!boardLayout) {
     throw new Error('boardLayout must be a valid layout object');
   }
 

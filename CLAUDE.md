@@ -2,6 +2,7 @@
 read @README.md
 
 ## Development Workflow
+If you need to know the architecture of the project, check @docs/architecture.md
 
 ### Test-Driven Development (TDD) Process
 

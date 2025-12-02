@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import PieceBlock from './PieceBlock';
-import { COLORS } from '../constants/gameConfig';
+import { COLORS, GAME_CONFIG } from '../constants/gameConfig';
 
 export default function Piece({
   shape,
   color = COLORS.CELL_FILLED,
   onPress,
-  blockSize = 20,
+  blockSize = GAME_CONFIG.CELL_SIZE,
 }) {
   const [isPressed, setIsPressed] = useState(false);
 
