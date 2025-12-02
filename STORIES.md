@@ -5,11 +5,6 @@ When the game is over, store the current score and prompt user to choose three l
 
 Keep the top 3 scores in the home screen, and in the game play the current max.
 
-## 3. Drag pieces to grid
-User can drag a pice from the 3 available into a valid spot in the grid.
-Valid spots are empty of existing pieces and cannot fall outside of the grid. 
-Once the user let go of the piece in a vlaid spot, the piece placeholder gets empty and the user cannot change the grid pieces anymore.
-
 ## 4. Bonus points when the grid gets completely empty
 When the user puts a piece that clears all existign blocks, the user gets bonus points.
 
