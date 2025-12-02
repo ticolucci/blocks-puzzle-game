@@ -5,67 +5,6 @@ When the game is over, store the current score and prompt user to choose three l
 
 Keep the top 3 scores in the home screen, and in the game play the current max.
 
-## 2. Add more pieces
-```
-*.
-.*
-```
-
-```
-***
-***
-***
-```
-
-```
-**
-**
-**
-```
-
-```
-*****
-```
-
-```
-****
-```
-
-```
-**
-```
-
-```
-*
-```
-
-```
-*.
-**
-.*
-```
-
-```
-.*
-**
-*.
-```
-
-```
-.*.
-***
-```
-
-```
-*..
-***
-```
-
-```
-..*
-***
-```
-
 ## 3. Drag pieces to grid
 User can drag a pice from the 3 available into a valid spot in the grid.
 Valid spots are empty of existing pieces and cannot fall outside of the grid. 
