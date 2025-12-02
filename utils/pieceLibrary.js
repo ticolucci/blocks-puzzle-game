@@ -88,3 +88,15 @@ export function getRandomPieces(count, shuffle = false) {
     };
   });
 }
+
+/**
+ * Initialize pieces for game with placement tracking
+ * @param {number} count - Number of pieces to generate
+ * @returns {Array} Array of pieces with isPlaced set to false
+ */
+export function initializeGamePieces(count) {
+  return getRandomPieces(count).map(piece => ({
+    ...piece,
+    isPlaced: false,
+  }));
+}

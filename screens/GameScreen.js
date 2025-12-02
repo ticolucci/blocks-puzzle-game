@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import GameBoard from '../components/GameBoard';
 import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
 import { GAME_CONFIG } from '../constants/gameConfig';
-import { getRandomPieces } from '../utils/pieceLibrary';
+import { initializeGamePieces } from '../utils/pieceLibrary';
 import { createEmptyGrid } from '../utils/gridHelpers';
 import { useDragHandlers } from '../hooks/useDragHandlers';
+import { usePiecePlacement } from '../hooks/usePiecePlacement';
 
 export default function GameScreen() {
   const [score, setScore] = useState(GAME_CONFIG.INITIAL_SCORE);
-  const [selectedPieceId, setSelectedPieceId] = useState(null);
-  const [pieces, setPieces] = useState(() =>
-    getRandomPieces(3).map(p => ({ ...p, isPlaced: false }))
-  );
+  const [pieces, setPieces] = useState(() => initializeGamePieces(3));
   const [gridState, setGridState] = useState(() => createEmptyGrid(GAME_CONFIG.BOARD_SIZE));
   const [boardLayout, setBoardLayout] = useState(null);
 
@@ -26,11 +24,9 @@ export default function GameScreen() {
     handleDragEnd: handleDragEndFromHook,
   } = useDragHandlers(boardLayout, gridState, GAME_CONFIG.BOARD_SIZE);
 
-  const handlePieceSelect = (piece) => {
-    setSelectedPieceId(piece.runtimeId);
-  };
+  const placePiece = usePiecePlacement(setGridState, setPieces);
 
-  const getBoardLayout = (event) => {
+  const getBoardLayout = useCallback((event) => {
     const { x, y, width, height } = event.nativeEvent.layout;
     setBoardLayout({
       x,
@@ -39,30 +35,12 @@ export default function GameScreen() {
       height,
       cellSize: GAME_CONFIG.CELL_SIZE,
     });
-  };
+  }, []);
 
-  const handleDragEnd = (piece) => {
+  const handleDragEnd = useCallback((piece) => {
     const finalDragState = handleDragEndFromHook(piece);
-
-    // Check if placement was valid
-    if (finalDragState && finalDragState.isValid && finalDragState.affectedCells) {
-      // Update grid state with placed piece
-      setGridState(prevGrid => {
-        const newGrid = prevGrid.map(row => row.map(cell => ({ ...cell })));
-        finalDragState.affectedCells.forEach(({ row, col }) => {
-          newGrid[row][col].filled = true;
-        });
-        return newGrid;
-      });
-
-      // Mark piece as placed
-      setPieces(prevPieces =>
-        prevPieces.map(p =>
-          p.runtimeId === piece.runtimeId ? { ...p, isPlaced: true } : p
-        )
-      );
-    }
-  };
+    placePiece(finalDragState, piece);
+  }, [handleDragEndFromHook, placePiece]);
 
   return (
     <View style={styles.container}>
@@ -83,8 +61,6 @@ export default function GameScreen() {
       <View style={styles.pieceSelectorContainer}>
         <PieceSelector
           pieces={pieces}
-          selectedPieceId={selectedPieceId}
-          onPieceSelect={handlePieceSelect}
           onDragStart={handleDragStart}
           onDragMove={handleDragMove}
           onDragEnd={handleDragEnd}

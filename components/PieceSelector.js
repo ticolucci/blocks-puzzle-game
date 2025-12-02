@@ -1,12 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import Piece from './Piece';
+import { View, StyleSheet } from 'react-native';
+import DraggablePiece from './DraggablePiece';
 
 function PieceSelector({
   pieces = [],
-  selectedPieceId,
-  onPieceSelect,
   onDragStart,
   onDragMove,
   onDragEnd,
@@ -16,17 +14,30 @@ function PieceSelector({
       {pieces.map((piece, index) => {
         // Use runtimeId if available (from library), otherwise fall back to id
         const pieceId = piece.runtimeId ?? piece.id;
-        const isSelected = pieceId === selectedPieceId;
+        const isPlaced = piece.isPlaced || false;
+
         return (
-          <TouchableOpacity
+          <View
             key={pieceId}
             testID={`piece-slot-${index}`}
-            accessibilityState={{ selected: isSelected }}
-            style={[styles.slot, isSelected && styles.selectedSlot]}
-            onPress={() => onPieceSelect && onPieceSelect(piece)}
+            accessibilityState={{ selected: false }}
+            style={[
+              styles.slot,
+              isPlaced && styles.placedSlot,
+            ]}
           >
-            <Piece shape={piece.shape} />
-          </TouchableOpacity>
+            {!isPlaced ? (
+              <DraggablePiece
+                piece={piece}
+                onDragStart={onDragStart}
+                onDragMove={onDragMove}
+                onDragEnd={onDragEnd}
+                isPlaced={isPlaced}
+              />
+            ) : (
+              <View style={styles.emptySlot} />
+            )}
+          </View>
         );
       })}
     </View>
@@ -44,8 +55,6 @@ PieceSelector.propTypes = {
       rotationIndex: PropTypes.number,
     })
   ),
-  selectedPieceId: PropTypes.number,
-  onPieceSelect: PropTypes.func,
   onDragStart: PropTypes.func,
   onDragMove: PropTypes.func,
   onDragEnd: PropTypes.func,
@@ -63,10 +72,19 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     backgroundColor: '#f9f9f9',
+    minWidth: 80,
+    minHeight: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  selectedSlot: {
-    borderColor: '#4A90E2',
-    backgroundColor: '#E3F2FD',
+  placedSlot: {
+    borderColor: '#ccc',
+    backgroundColor: '#f5f5f5',
+    opacity: 0.5,
+  },
+  emptySlot: {
+    width: 60,
+    height: 60,
   },
 });
 
