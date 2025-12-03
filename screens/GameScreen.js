@@ -97,8 +97,6 @@ export default function GameScreen() {
     const currentBoardLayout = boardLayoutRef.current;
     const currentGridState = gridStateRef.current;
 
-    console.log('Screen coords:', screenX, screenY);
-
     if (!currentBoardLayout || !currentGridState) {
       return;
     }
@@ -133,7 +131,6 @@ export default function GameScreen() {
 
   const handleDragEnd = useCallback((piece) => {
     const finalDragState = dragState;
-console.log('Drag ended for piece:', piece, 'Final drag state:', finalDragState);
     // Clear drag state and preview
     setDragState(null);
     setPreviewCells(null);
@@ -175,20 +172,24 @@ console.log('Drag ended for piece:', piece, 'Final drag state:', finalDragState)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: '100%',
+    flexDirection: 'column',
+    alignItems: 'center',
     backgroundColor: '#fff',
   },
   scoreContainer: {
-    position: 'absolute',
-    top: 20,
-    right: 20,
+    alignSelf: 'flex-end',
+    height: 60,
+    width: 60,
     zIndex: 10,
+    marginTop: 15,
+    marginBottom: 40,
+    marginRight: 40,
   },
   boardContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 40,
   },
   pieceSelectorContainer: {
-    paddingBottom: 20,
+    width: '100%',
   },
 });

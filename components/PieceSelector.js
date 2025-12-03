@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 import DraggablePiece from './DraggablePiece';
+import { GAME_CONFIG } from '../constants/gameConfig';
 
 function PieceSelector({
   pieces = [],
@@ -72,8 +73,9 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     backgroundColor: '#f9f9f9',
-    minWidth: 80,
-    minHeight: 80,
+    minWidth: (GAME_CONFIG.CELL_SIZE + 1) * 5,
+    minHeight: (GAME_CONFIG.CELL_SIZE + 1) * 5,
+    marginHorizontal: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },

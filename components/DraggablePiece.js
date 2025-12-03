@@ -84,8 +84,8 @@ function DraggablePiece({
 
               // Calculate offset from touch point to piece center
               touchOffset.current = {
-                x: event.nativeEvent.pageX - pieceCenterScreen.current.x,
-                y: event.nativeEvent.pageY - pieceCenterScreen.current.y,
+                x: (event.nativeEvent.pageX - pieceCenterScreen.current.x) * -1,
+                y: (event.nativeEvent.pageY - pieceCenterScreen.current.y) * -1,
               };
 
               console.log('Drag started');

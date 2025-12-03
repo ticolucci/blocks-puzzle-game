@@ -1,6 +1,6 @@
 export const GAME_CONFIG = {
   BOARD_SIZE: 10,
-  CELL_SIZE: 25,
+  CELL_SIZE: 22,
   MAX_PIECE_SIZE: 5,
   INITIAL_SCORE: 0,
 };
