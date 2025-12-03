@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
 import PropTypes from 'prop-types';
 import { View, StyleSheet } from 'react-native';
 import GridCell from './GridCell';
@@ -34,22 +34,40 @@ const usePreviewCells = (previewCells) => {
  * @example
  * const gridState = createEmptyGrid(10);
  * const previewCells = [{ row: 5, col: 5 }, { row: 5, col: 6 }];
+ * const boardRef = useRef(null);
  *
  * <GameBoard
+ *   ref={boardRef}
  *   size={10}
  *   gridState={gridState}
  *   previewCells={previewCells}
  *   previewValid={true}
- *   onLayout={(event) => console.log('Board layout:', event.nativeEvent.layout)}
  * />
+ *
+ * // Measure board position
+ * boardRef.current.measureInWindow((x, y, width, height) => {
+ *   console.log('Board position:', { x, y, width, height });
+ * });
  */
-function GameBoard({
+const GameBoard = forwardRef(({
   size = GAME_CONFIG.BOARD_SIZE,
   onLayout,
   gridState,
   previewCells = null,
   previewValid = true,
-}) {
+}, ref) => {
+  // Ref to the View component for measuring
+  const viewRef = useRef(null);
+
+  // Expose measureInWindow method to parent components
+  useImperativeHandle(ref, () => ({
+    measureInWindow: (callback) => {
+      if (viewRef.current) {
+        viewRef.current.measureInWindow(callback);
+      }
+    },
+  }));
+
   // Use provided gridState or create empty grid
   const gridData = gridState || createEmptyGrid(size);
 
@@ -57,7 +75,7 @@ function GameBoard({
   const isPreviewCell = usePreviewCells(previewCells);
 
   return (
-    <View style={styles.container} onLayout={onLayout}>
+    <View ref={viewRef} style={styles.container} onLayout={onLayout}>
       {gridData.map((row, rowIndex) => (
         <View key={`row-${rowIndex}`} style={styles.row}>
           {row.map((cell) => (
@@ -74,7 +92,9 @@ function GameBoard({
       ))}
     </View>
   );
-}
+});
+
+GameBoard.displayName = 'GameBoard';
 
 GameBoard.propTypes = {
   size: PropTypes.number,

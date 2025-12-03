@@ -19,6 +19,9 @@ export default function GameScreen() {
   const [previewCells, setPreviewCells] = useState(null);
   const [previewValid, setPreviewValid] = useState(true);
 
+  // Ref to GameBoard component for measuring absolute screen position
+  const gameBoardRef = useRef(null);
+
   // Use refs to always access the latest values
   const boardLayoutRef = useRef(boardLayout);
   const gridStateRef = useRef(gridState);
@@ -29,6 +32,15 @@ export default function GameScreen() {
     gridStateRef.current = gridState;
     dragStateRef.current = dragState;
   }, [boardLayout, gridState, dragState]);
+
+  // Measure board position on mount and when layout changes
+  useEffect(() => {
+    // Small delay to ensure the board has been rendered
+    const timer = setTimeout(() => {
+      getBoardLayout();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [getBoardLayout]);
 
   const placePiece = useCallback((piece) => {
     const currentDragState = dragStateRef.current;
@@ -56,17 +68,20 @@ export default function GameScreen() {
     return true;
   }, [setGridState, setPieces, dragState]);
 
-  const getBoardLayout = useCallback((event) => {
-    const { x, y, width, height } = event.nativeEvent.layout;
-    const newLayout = {
-      x,
-      y,
-      width,
-      height,
-      cellSize: GAME_CONFIG.CELL_SIZE,
-    };
-    console.log('Setting board layout:', newLayout);
-    setBoardLayout(newLayout);
+  const getBoardLayout = useCallback(() => {
+    if (gameBoardRef.current) {
+      gameBoardRef.current.measureInWindow((x, y, width, height) => {
+        const newLayout = {
+          x: x + GAME_CONFIG.CELL_SIZE,
+          y: y + GAME_CONFIG.CELL_SIZE,
+          width,
+          height,
+          cellSize: GAME_CONFIG.CELL_SIZE,
+        };
+        console.log('Setting board layout (measureInWindow):', newLayout);
+        setBoardLayout(newLayout);
+      });
+    }
   }, []);
 
   // Drag handlers (inlined from useDragHandlers)
@@ -136,6 +151,7 @@ console.log('Drag ended for piece:', piece, 'Final drag state:', finalDragState)
 
       <View style={styles.boardContainer}>
         <GameBoard
+          ref={gameBoardRef}
           size={GAME_CONFIG.BOARD_SIZE}
           gridState={gridState}
           previewCells={previewCells}

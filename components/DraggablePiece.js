@@ -78,8 +78,8 @@ function DraggablePiece({
 
               // Calculate absolute screen position of piece center
               pieceCenterScreen.current = { 
-                x: x + (width / 2) - GAME_CONFIG.CELL_SIZE, 
-                y: y + (height / 2) - GAME_CONFIG.CELL_SIZE
+                x: x + (width / 2),
+                y: y + (height / 2)
               };
 
               // Calculate offset from touch point to piece center
