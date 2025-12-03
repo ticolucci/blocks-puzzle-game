@@ -1,6 +1,5 @@
 import {
   screenToGridPosition,
-  calculatePieceCenterOffset,
   snapToGrid,
 } from '../gridCoordinates';
 
@@ -55,62 +54,6 @@ describe('gridCoordinates', () => {
       // Right at the edge: x=399 (just before 400), y=200
       const result = screenToGridPosition(399, 200, mockBoardLayout);
       expect(result).toEqual({ row: 0, col: 9 });
-    });
-  });
-
-  describe('calculatePieceCenterOffset', () => {
-    test('returns correct offset for 2x2 square', () => {
-      const shape = [
-        [1, 1],
-        [1, 1],
-      ];
-      const result = calculatePieceCenterOffset(shape, 20);
-      expect(result).toEqual({ offsetX: 10, offsetY: 10 });
-    });
-
-    test('returns correct offset for L-shape', () => {
-      const shape = [
-        [1, 0],
-        [1, 1],
-      ];
-      const result = calculatePieceCenterOffset(shape, 20);
-      // Bounding box: rows 0-1, cols 0-1
-      // Center: (0.5, 0.5) * 20 = (10, 10)
-      expect(result).toEqual({ offsetX: 10, offsetY: 10 });
-    });
-
-    test('returns correct offset for horizontal line piece', () => {
-      const shape = [[1, 1, 1, 1, 1]];
-      const result = calculatePieceCenterOffset(shape, 20);
-      // Bounding box: row 0, cols 0-4
-      // Center: col = 2, row = 0 → (40, 0)
-      expect(result).toEqual({ offsetX: 40, offsetY: 0 });
-    });
-
-    test('returns correct offset for vertical line piece', () => {
-      const shape = [[1], [1], [1], [1]];
-      const result = calculatePieceCenterOffset(shape, 20);
-      // Bounding box: rows 0-3, col 0
-      // Center: row = 1.5, col = 0 → (0, 30)
-      expect(result).toEqual({ offsetX: 0, offsetY: 30 });
-    });
-
-    test('returns correct offset for single block', () => {
-      const shape = [[1]];
-      const result = calculatePieceCenterOffset(shape, 20);
-      expect(result).toEqual({ offsetX: 0, offsetY: 0 });
-    });
-
-    test('handles piece with empty cells in middle', () => {
-      const shape = [
-        [1, 0, 1],
-        [0, 1, 0],
-        [1, 0, 1],
-      ];
-      const result = calculatePieceCenterOffset(shape, 20);
-      // Bounding box: rows 0-2, cols 0-2
-      // Center: (1, 1) * 20 = (20, 20)
-      expect(result).toEqual({ offsetX: 20, offsetY: 20 });
     });
   });
 
