@@ -7,7 +7,7 @@ import { GAME_CONFIG, COLORS } from '../constants/gameConfig';
  * Individual grid cell component with preview support
  * Memoized to prevent unnecessary re-renders during drag operations
  */
-function GridCell({ row, col, filled = false, isPreview = false, previewValid = true }) {
+function GridCell({ row, col, filled = false, isPreview = false, previewValid = true, isClearing = false }) {
   return (
     <View
       testID={`grid-cell-${row}-${col}`}
@@ -17,6 +17,7 @@ function GridCell({ row, col, filled = false, isPreview = false, previewValid = 
         filled && styles.filled,
         isPreview && previewValid && styles.previewValid,
         isPreview && !previewValid && styles.previewInvalid,
+        isClearing && styles.clearing,
       ]}
     />
   );
@@ -28,6 +29,7 @@ GridCell.propTypes = {
   filled: PropTypes.bool,
   isPreview: PropTypes.bool,
   previewValid: PropTypes.bool,
+  isClearing: PropTypes.bool,
 };
 
 // Memoize to prevent unnecessary re-renders of 100 cells during drag operations
@@ -49,5 +51,8 @@ const styles = StyleSheet.create({
   },
   previewInvalid: {
     backgroundColor: COLORS.PREVIEW_INVALID,
+  },
+  clearing: {
+    backgroundColor: COLORS.CELL_CLEARING,
   },
 });

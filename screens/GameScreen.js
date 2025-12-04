@@ -21,6 +21,7 @@ export default function GameScreen() {
   const [dragState, setDragState] = useState(null);
   const [previewCells, setPreviewCells] = useState(null);
   const [previewValid, setPreviewValid] = useState(true);
+  const [clearingCells, setClearingCells] = useState(null);
 
   // Ref to GameBoard component for measuring absolute screen position
   const gameBoardRef = useRef(null);
@@ -92,12 +93,35 @@ export default function GameScreen() {
       const filledRows = getFilledRows(newGrid, GAME_CONFIG.BOARD_SIZE);
       const filledColumns = getFilledColumns(newGrid, GAME_CONFIG.BOARD_SIZE);
 
-      // Clear them if any found
+      // If lines need to be cleared, show animation first
       if (filledRows.length > 0 || filledColumns.length > 0) {
-        const clearedGrid = clearLines(newGrid, filledRows, filledColumns);
-        const points = calculateClearScore(filledRows.length, filledColumns.length);
-        setScore(prevScore => prevScore + points);
-        return clearedGrid;
+        // Build array of cells to animate
+        const cellsToAnimate = [];
+        filledRows.forEach(rowIndex => {
+          for (let col = 0; col < GAME_CONFIG.BOARD_SIZE; col++) {
+            cellsToAnimate.push({ row: rowIndex, col });
+          }
+        });
+        filledColumns.forEach(colIndex => {
+          for (let row = 0; row < GAME_CONFIG.BOARD_SIZE; row++) {
+            // Avoid duplicates if a cell is in both a row and column
+            if (!cellsToAnimate.some(cell => cell.row === row && cell.col === colIndex)) {
+              cellsToAnimate.push({ row, col: colIndex });
+            }
+          }
+        });
+
+        // Show clearing animation
+        setClearingCells(cellsToAnimate);
+
+        // After animation delay, clear the lines
+        setTimeout(() => {
+          const clearedGrid = clearLines(newGrid, filledRows, filledColumns);
+          const points = calculateClearScore(filledRows.length, filledColumns.length);
+          setScore(prevScore => prevScore + points);
+          setGridState(clearedGrid);
+          setClearingCells(null);
+        }, 400); // 400ms animation duration
       }
 
       return newGrid;
@@ -194,6 +218,7 @@ export default function GameScreen() {
     setDragState(null);
     setPreviewCells(null);
     setPreviewValid(true);
+    setClearingCells(null);
   }, []);
 
   return (
@@ -209,6 +234,7 @@ export default function GameScreen() {
           gridState={gridState}
           previewCells={previewCells}
           previewValid={previewValid}
+          clearingCells={clearingCells}
           onLayout={getBoardLayout}
         />
       </View>
