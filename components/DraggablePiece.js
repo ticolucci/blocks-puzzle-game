@@ -15,6 +15,13 @@ const SPRING_CONFIG = {
   useNativeDriver: true,
 };
 
+// Quick animation for centering piece under finger after pickup
+const CENTER_ANIMATION_CONFIG = {
+  friction: 12,
+  tension: 150,
+  useNativeDriver: true,
+};
+
 /**
  * A draggable wrapper for the Piece component with PanResponder gesture handling
  * Provides smooth drag-and-drop interaction with return-to-origin animation
@@ -60,6 +67,9 @@ function DraggablePiece({
   // Store the initial touch offset from the piece center
   const touchOffset = useRef({ x: 0, y: 0 });
 
+  // Store the initial centering offset applied when picking up the piece
+  const initialOffset = useRef({ x: 0, y: 0 });
+
   // PanResponder for gesture handling
   const panResponder = useRef(
     PanResponder.create({
@@ -77,7 +87,7 @@ function DraggablePiece({
               console.log('measureInWindow at drag start:', { x, y, width, height });
 
               // Calculate absolute screen position of piece center
-              pieceCenterScreen.current = { 
+              pieceCenterScreen.current = {
                 x: x + (width / 2),
                 y: y + (height / 2)
               };
@@ -93,6 +103,21 @@ function DraggablePiece({
               console.log('Piece center screen (height and width):', );
 
               console.log('Touch offset from center:', touchOffset.current);
+
+              // Calculate the offset needed to center the piece under the finger
+              // This is the inverse of the touch offset
+              initialOffset.current = {
+                x: -touchOffset.current.x,
+                y: -touchOffset.current.y,
+              };
+
+              console.log('Initial centering offset:', initialOffset.current);
+
+              // Animate piece to center under the finger
+              Animated.spring(pan, {
+                toValue: initialOffset.current,
+                ...CENTER_ANIMATION_CONFIG,
+              }).start();
             });
           }
 
@@ -105,8 +130,12 @@ function DraggablePiece({
       // Gesture moving
       onPanResponderMove: (event, gestureState) => {
         if (!isPlaced && !disabled) {
-          // Update animated position
-          pan.setValue({ x: gestureState.dx, y: gestureState.dy });
+          // Update animated position, adding the initial centering offset
+          // to the gesture displacement so the piece stays centered under the finger
+          pan.setValue({
+            x: initialOffset.current.x + gestureState.dx,
+            y: initialOffset.current.y + gestureState.dy
+          });
 
           // Call onDragMove with adjusted screen coordinates (accounting for initial touch offset)
           if (onDragMove) {
@@ -126,6 +155,9 @@ function DraggablePiece({
             onDragEnd(piece);
           }
 
+          // Reset initial offset for next drag
+          initialOffset.current = { x: 0, y: 0 };
+
           // Return to origin with spring animation
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
@@ -137,6 +169,9 @@ function DraggablePiece({
       // Gesture terminated (interrupted by another gesture)
       onPanResponderTerminate: () => {
         if (!isPlaced && !disabled) {
+          // Reset initial offset for next drag
+          initialOffset.current = { x: 0, y: 0 };
+
           // Return to origin with spring animation
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
