@@ -9,6 +9,21 @@ describe('placementValidation', () => {
     emptyGrid = createEmptyGrid(boardSize);
   });
 
+  /**
+   * Helper function to fill board cells based on a predicate
+   * @param {Array<Array<{row: number, col: number, filled: boolean}>>} grid - The grid to fill
+   * @param {Function} shouldFill - Predicate function (row, col) => boolean
+   */
+  const fillBoardExcept = (grid, shouldFill) => {
+    for (let row = 0; row < boardSize; row++) {
+      for (let col = 0; col < boardSize; col++) {
+        if (shouldFill(row, col)) {
+          grid[row][col].filled = true;
+        }
+      }
+    }
+  };
+
   describe('canPlacePiece', () => {
     const squarePiece = {
       shape: [
@@ -262,13 +277,7 @@ describe('placementValidation', () => {
 
     test('returns true when there is at least one valid position', () => {
       // Fill most of the board except one corner
-      for (let row = 0; row < boardSize; row++) {
-        for (let col = 0; col < boardSize; col++) {
-          if (!(row >= 8 && col >= 8)) {
-            emptyGrid[row][col].filled = true;
-          }
-        }
-      }
+      fillBoardExcept(emptyGrid, (row, col) => !(row >= 8 && col >= 8));
 
       const result = isPossibleToPlace(squarePiece, emptyGrid, boardSize);
       expect(result).toBe(true);
@@ -276,11 +285,7 @@ describe('placementValidation', () => {
 
     test('returns false when board is completely full', () => {
       // Fill entire board
-      for (let row = 0; row < boardSize; row++) {
-        for (let col = 0; col < boardSize; col++) {
-          emptyGrid[row][col].filled = true;
-        }
-      }
+      fillBoardExcept(emptyGrid, () => true);
 
       const result = isPossibleToPlace(singleBlockPiece, emptyGrid, boardSize);
       expect(result).toBe(false);
@@ -288,13 +293,7 @@ describe('placementValidation', () => {
 
     test('returns false when no space is large enough for the piece', () => {
       // Create a checkerboard pattern - no 2x2 space available
-      for (let row = 0; row < boardSize; row++) {
-        for (let col = 0; col < boardSize; col++) {
-          if ((row + col) % 2 === 0) {
-            emptyGrid[row][col].filled = true;
-          }
-        }
-      }
+      fillBoardExcept(emptyGrid, (row, col) => (row + col) % 2 === 0);
 
       const result = isPossibleToPlace(squarePiece, emptyGrid, boardSize);
       expect(result).toBe(false);
@@ -302,12 +301,7 @@ describe('placementValidation', () => {
 
     test('returns true for single block when at least one cell is empty', () => {
       // Fill entire board except one cell
-      for (let row = 0; row < boardSize; row++) {
-        for (let col = 0; col < boardSize; col++) {
-          emptyGrid[row][col].filled = true;
-        }
-      }
-      emptyGrid[5][5].filled = false;
+      fillBoardExcept(emptyGrid, (row, col) => !(row === 5 && col === 5));
 
       const result = isPossibleToPlace(singleBlockPiece, emptyGrid, boardSize);
       expect(result).toBe(true);
@@ -315,13 +309,7 @@ describe('placementValidation', () => {
 
     test('returns false for large piece on nearly full board', () => {
       // Fill board leaving only small gaps
-      for (let row = 0; row < boardSize; row++) {
-        for (let col = 0; col < boardSize; col++) {
-          if (!(row === 5 && col === 5)) {
-            emptyGrid[row][col].filled = true;
-          }
-        }
-      }
+      fillBoardExcept(emptyGrid, (row, col) => !(row === 5 && col === 5));
 
       // 5-cell line piece cannot fit
       const result = isPossibleToPlace(linePiece, emptyGrid, boardSize);
@@ -330,11 +318,7 @@ describe('placementValidation', () => {
 
     test('returns true when piece fits at edge of board', () => {
       // Fill board except top row
-      for (let row = 1; row < boardSize; row++) {
-        for (let col = 0; col < boardSize; col++) {
-          emptyGrid[row][col].filled = true;
-        }
-      }
+      fillBoardExcept(emptyGrid, (row, col) => row >= 1);
 
       const result = isPossibleToPlace(linePiece, emptyGrid, boardSize);
       expect(result).toBe(true);
