@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react-native';
+import { render, waitFor, fireEvent } from '@testing-library/react-native';
 import GameScreen from '../GameScreen';
 import * as pieceLibrary from '../../utils/pieceLibrary';
 
@@ -351,6 +351,52 @@ describe('GameScreen', () => {
 
       // Should not show game over
       expect(queryByText('Game Over')).toBeNull();
+    });
+
+    test('resets game when New Game button is pressed', async () => {
+      const createFullGrid = () => {
+        const grid = [];
+        for (let row = 0; row < 10; row++) {
+          const gridRow = [];
+          for (let col = 0; col < 10; col++) {
+            gridRow.push({ row, col, filled: true });
+          }
+          grid.push(gridRow);
+        }
+        return grid;
+      };
+
+      const gridHelpers = require('../../utils/gridHelpers');
+      const createEmptyGridSpy = jest.spyOn(gridHelpers, 'createEmptyGrid');
+      createEmptyGridSpy.mockReturnValueOnce(createFullGrid()); // First call returns full grid
+
+      const mockPieces = [
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 2, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 3, shape: [[1, 1, 1]], id: 'LINE_3_0', shapeName: 'LINE_3', rotation: 0, rotationIndex: 0, isPlaced: false },
+      ];
+
+      jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
+
+      const { getByText, queryByText } = render(<GameScreen />);
+
+      // Wait for game over to appear
+      await waitFor(() => {
+        expect(queryByText('Game Over')).toBeTruthy();
+      });
+
+      // Press New Game button
+      const newGameButton = getByText('New Game');
+      fireEvent.press(newGameButton);
+
+      // Game over modal should be hidden
+      await waitFor(() => {
+        expect(queryByText('Game Over')).toBeNull();
+      });
+
+      // Cleanup
+      createEmptyGridSpy.mockRestore();
+      pieceLibrary.initializeGamePieces.mockRestore();
     });
   });
 });

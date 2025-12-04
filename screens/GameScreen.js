@@ -171,6 +171,17 @@ export default function GameScreen() {
     placePiece(piece);
   }, [dragState, placePiece]);
 
+  const handleRestart = useCallback(() => {
+    // Reset game state
+    setScore(GAME_CONFIG.INITIAL_SCORE);
+    setGridState(createEmptyGrid(GAME_CONFIG.BOARD_SIZE));
+    setPieces(initializeGamePieces(3));
+    setIsGameOver(false);
+    setDragState(null);
+    setPreviewCells(null);
+    setPreviewValid(true);
+  }, []);
+
   return (
     <View style={styles.container}>
       <View style={styles.scoreContainer}>
@@ -197,7 +208,7 @@ export default function GameScreen() {
         />
       </View>
 
-      <GameOverModal visible={isGameOver} score={score} />
+      <GameOverModal visible={isGameOver} score={score} onRestart={handleRestart} />
     </View>
   );
 }
