@@ -100,3 +100,12 @@ export function initializeGamePieces(count) {
     isPlaced: false,
   }));
 }
+
+/**
+ * Checks if all pieces in the array have been placed
+ * @param {Array} pieces - Array of piece objects
+ * @returns {boolean} True if all pieces are placed, false otherwise
+ */
+export function areAllPiecesPlaced(pieces) {
+  return pieces.every(piece => piece.isPlaced);
+}

@@ -61,6 +61,8 @@ jest.mock('../../utils/pieceLibrary', () => ({
       isPlaced: false,
     },
   ]),
+  getRandomPieces: jest.fn(() => []),
+  areAllPiecesPlaced: jest.fn((pieces) => pieces.every(p => p.isPlaced)),
 }));
 
 describe('GameScreen - Drag and Drop Integration', () => {

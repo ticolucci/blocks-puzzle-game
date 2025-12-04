@@ -1,4 +1,4 @@
-import { generateRotations, generatePieceLibrary, getPieceLibrary, getRandomPieces } from '../pieceLibrary';
+import { generateRotations, generatePieceLibrary, getPieceLibrary, getRandomPieces, areAllPiecesPlaced } from '../pieceLibrary';
 import { PIECE_SHAPES } from '../../constants/gameConfig';
 
 describe('pieceLibrary', () => {
@@ -222,6 +222,62 @@ describe('pieceLibrary', () => {
       const runtimeIds = pieces.map(p => p.runtimeId);
       const uniqueIds = new Set(runtimeIds);
       expect(uniqueIds.size).toBe(library.length + 10);
+    });
+  });
+
+  describe('areAllPiecesPlaced', () => {
+    test('returns true when all pieces are placed', () => {
+      const pieces = [
+        { runtimeId: 1, shape: [[1]], isPlaced: true },
+        { runtimeId: 2, shape: [[1]], isPlaced: true },
+        { runtimeId: 3, shape: [[1]], isPlaced: true },
+      ];
+
+      expect(areAllPiecesPlaced(pieces)).toBe(true);
+    });
+
+    test('returns false when no pieces are placed', () => {
+      const pieces = [
+        { runtimeId: 1, shape: [[1]], isPlaced: false },
+        { runtimeId: 2, shape: [[1]], isPlaced: false },
+        { runtimeId: 3, shape: [[1]], isPlaced: false },
+      ];
+
+      expect(areAllPiecesPlaced(pieces)).toBe(false);
+    });
+
+    test('returns false when only some pieces are placed', () => {
+      const pieces = [
+        { runtimeId: 1, shape: [[1]], isPlaced: true },
+        { runtimeId: 2, shape: [[1]], isPlaced: false },
+        { runtimeId: 3, shape: [[1]], isPlaced: true },
+      ];
+
+      expect(areAllPiecesPlaced(pieces)).toBe(false);
+    });
+
+    test('returns false when only one piece is not placed', () => {
+      const pieces = [
+        { runtimeId: 1, shape: [[1]], isPlaced: true },
+        { runtimeId: 2, shape: [[1]], isPlaced: true },
+        { runtimeId: 3, shape: [[1]], isPlaced: false },
+      ];
+
+      expect(areAllPiecesPlaced(pieces)).toBe(false);
+    });
+
+    test('returns true for empty array', () => {
+      expect(areAllPiecesPlaced([])).toBe(true);
+    });
+
+    test('handles pieces without isPlaced property (treats as false)', () => {
+      const pieces = [
+        { runtimeId: 1, shape: [[1]], isPlaced: true },
+        { runtimeId: 2, shape: [[1]] }, // Missing isPlaced
+        { runtimeId: 3, shape: [[1]], isPlaced: true },
+      ];
+
+      expect(areAllPiecesPlaced(pieces)).toBe(false);
     });
   });
 });

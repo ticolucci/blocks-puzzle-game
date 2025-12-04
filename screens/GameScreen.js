@@ -4,7 +4,7 @@ import GameBoard from '../components/GameBoard';
 import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
 import { GAME_CONFIG } from '../constants/gameConfig';
-import { initializeGamePieces } from '../utils/pieceLibrary';
+import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced } from '../utils/pieceLibrary';
 import { createEmptyGrid } from '../utils/gridHelpers';
 import { screenToGridPosition } from '../utils/gridCoordinates';
 import { canPlacePiece, getAffectedCells } from '../utils/placementValidation';
@@ -41,6 +41,14 @@ export default function GameScreen() {
     }, 100);
     return () => clearTimeout(timer);
   }, [getBoardLayout]);
+
+  // Check if all pieces are placed and generate new ones
+  useEffect(() => {
+    if (areAllPiecesPlaced(pieces)) {
+      const newPieces = getRandomPieces(3);
+      setPieces(newPieces);
+    }
+  }, [pieces]);
 
   const placePiece = useCallback((piece) => {
     const currentDragState = dragStateRef.current;

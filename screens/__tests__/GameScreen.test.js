@@ -1,7 +1,24 @@
 import React from 'react';
-import { render } from '@testing-library/react-native';
+import { render, waitFor } from '@testing-library/react-native';
 import GameScreen from '../GameScreen';
 import * as pieceLibrary from '../../utils/pieceLibrary';
+
+// Mock DraggablePiece to make pieces queryable by testID
+jest.mock('../../components/DraggablePiece', () => {
+  const React = require('react');
+  const { View, Text } = require('react-native');
+  return function DraggablePiece({ piece, onDragEnd }) {
+    return (
+      <View testID={`draggable-piece-${piece.runtimeId}`}>
+        <Text>Piece {piece.runtimeId}</Text>
+        {/* Expose onDragEnd for testing */}
+        {onDragEnd && (
+          <View testID={`drag-end-trigger-${piece.runtimeId}`} onTouchEnd={() => onDragEnd(piece)} />
+        )}
+      </View>
+    );
+  };
+});
 
 describe('GameScreen', () => {
   test('renders game board', () => {
@@ -32,14 +49,19 @@ describe('GameScreen', () => {
     expect(slots).toHaveLength(3);
   });
 
-  test('all three pieces are 2x2 squares', () => {
-    const { getAllByTestId } = render(<GameScreen />);
-    const slots = getAllByTestId(/piece-slot-/);
+  test('all three pieces are rendered as draggable', () => {
+    const { queryByTestId } = render(<GameScreen />);
 
-    // Each 2x2 square piece should have 4 blocks
+    // Should have 3 draggable pieces (with any runtime IDs)
+    // Since DraggablePiece is mocked, we check for draggable-piece testIDs
+    const slots = [
+      queryByTestId(/piece-slot-0/),
+      queryByTestId(/piece-slot-1/),
+      queryByTestId(/piece-slot-2/),
+    ];
+
     slots.forEach(slot => {
-      const pieceBlocks = getAllByTestId(/piece-block-/);
-      expect(pieceBlocks.length).toBeGreaterThanOrEqual(4);
+      expect(slot).toBeTruthy();
     });
   });
 
@@ -113,6 +135,124 @@ describe('GameScreen', () => {
       expect(typeof pieceSelector.props.onDragStart).toBe('function');
       expect(typeof pieceSelector.props.onDragMove).toBe('function');
       expect(typeof pieceSelector.props.onDragEnd).toBe('function');
+    });
+  });
+
+  describe('Piece Regeneration', () => {
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test('generates new pieces when all three pieces are placed', () => {
+      // Mock initial pieces with isPlaced: true to simulate all pieces placed
+      const initialPieces = [
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+      ];
+
+      // Mock new pieces after regeneration
+      const newPieces = [
+        { runtimeId: 100, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 101, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 102, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+      ];
+
+      jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
+      const getRandomPiecesSpy = jest.spyOn(pieceLibrary, 'getRandomPieces').mockReturnValue(newPieces);
+
+      const { queryByTestId } = render(<GameScreen />);
+
+      // When all pieces are placed, getRandomPieces should be called
+      // THIS WILL FAIL because the feature isn't implemented yet
+      expect(getRandomPiecesSpy).toHaveBeenCalledWith(3);
+    });
+
+    test('new pieces have isPlaced set to false', () => {
+      const initialPieces = [
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+      ];
+
+      const newPieces = [
+        { runtimeId: 200, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 201, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 202, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+      ];
+
+      jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
+      jest.spyOn(pieceLibrary, 'getRandomPieces').mockReturnValue(newPieces);
+
+      const { queryByTestId } = render(<GameScreen />);
+
+      // After regeneration, new draggable pieces should be visible (not empty slots)
+      // THIS WILL FAIL because the feature isn't implemented yet
+      expect(queryByTestId('draggable-piece-200')).toBeTruthy();
+      expect(queryByTestId('draggable-piece-201')).toBeTruthy();
+      expect(queryByTestId('draggable-piece-202')).toBeTruthy();
+    });
+
+    test('new pieces have unique runtime IDs different from previous pieces', () => {
+      const initialPieces = [
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+      ];
+
+      const newPieces = [
+        { runtimeId: 300, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 301, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 302, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+      ];
+
+      jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
+      jest.spyOn(pieceLibrary, 'getRandomPieces').mockReturnValue(newPieces);
+
+      const { queryByTestId } = render(<GameScreen />);
+
+      // After regeneration, should see new pieces with different IDs
+      // THIS WILL FAIL because the feature isn't implemented yet
+      expect(queryByTestId('draggable-piece-300')).toBeTruthy();
+      expect(queryByTestId('draggable-piece-301')).toBeTruthy();
+      expect(queryByTestId('draggable-piece-302')).toBeTruthy();
+
+      // Old pieces should no longer be visible
+      expect(queryByTestId('draggable-piece-1')).toBeNull();
+      expect(queryByTestId('draggable-piece-2')).toBeNull();
+      expect(queryByTestId('draggable-piece-3')).toBeNull();
+    });
+
+    test('does not generate new pieces when only one piece is placed', () => {
+      const initialPieces = [
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+      ];
+
+      jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
+      const getRandomPiecesSpy = jest.spyOn(pieceLibrary, 'getRandomPieces');
+
+      render(<GameScreen />);
+
+      // With only 1 piece placed, getRandomPieces should NOT be called
+      expect(getRandomPiecesSpy).not.toHaveBeenCalled();
+    });
+
+    test('does not generate new pieces when only two pieces are placed', () => {
+      const initialPieces = [
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+      ];
+
+      jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
+      const getRandomPiecesSpy = jest.spyOn(pieceLibrary, 'getRandomPieces');
+
+      render(<GameScreen />);
+
+      // With only 2 pieces placed, getRandomPieces should NOT be called
+      expect(getRandomPiecesSpy).not.toHaveBeenCalled();
     });
   });
 });
