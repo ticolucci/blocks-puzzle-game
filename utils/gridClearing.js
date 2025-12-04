@@ -1,3 +1,5 @@
+import { GAME_CONFIG } from '../constants/gameConfig';
+
 /**
  * Get the indices of all completely filled rows
  * @param {Array<Array<{row: number, col: number, filled: boolean}>>} gridState - Current grid state
@@ -87,14 +89,13 @@ export const clearLines = (gridState, filledRows, filledColumns) => {
  * @returns {number} Score earned from clearing
  */
 export const calculateClearScore = (rowCount, columnCount) => {
-  const LINE_CLEAR_BASE_POINTS = 1000;
   const totalLines = rowCount + columnCount;
 
   if (totalLines === 0) {
     return 0;
   }
 
-  const baseScore = LINE_CLEAR_BASE_POINTS * totalLines;
+  const baseScore = GAME_CONFIG.LINE_CLEAR_BASE_POINTS * totalLines;
 
   // Determine multiplier
   let multiplier;

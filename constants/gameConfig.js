@@ -3,6 +3,7 @@ export const GAME_CONFIG = {
   CELL_SIZE: 22,
   MAX_PIECE_SIZE: 5,
   INITIAL_SCORE: 0,
+  LINE_CLEAR_BASE_POINTS: 1000,
 };
 
 export const COLORS = {
