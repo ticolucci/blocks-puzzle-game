@@ -77,9 +77,18 @@ function DraggablePiece({
       // Gesture started
       onPanResponderGrant: (event) => {
         if (!isPlaced && !disabled) {
+          console.log(`\n[${piece.runtimeId}] === DRAG START ===`);
+          console.log(`[${piece.runtimeId}] pieceLayout:`, pieceLayout.current);
+          console.log(`[${piece.runtimeId}] touch position:`, {
+            pageX: event.nativeEvent.pageX,
+            pageY: event.nativeEvent.pageY
+          });
+
           // Calculate piece center from pre-measured layout
           const pieceCenterX = pieceLayout.current.x + (pieceLayout.current.width / 2);
           const pieceCenterY = pieceLayout.current.y + (pieceLayout.current.height / 2);
+
+          console.log(`[${piece.runtimeId}] calculated piece center:`, { pieceCenterX, pieceCenterY });
 
           // Calculate the offset needed to center the piece under the finger
           // This moves the piece so its center aligns with the touch point
@@ -87,6 +96,8 @@ function DraggablePiece({
             x: event.nativeEvent.pageX - pieceCenterX,
             y: event.nativeEvent.pageY - pieceCenterY,
           };
+
+          console.log(`[${piece.runtimeId}] initialOffset:`, initialOffset.current);
 
           // Animate piece to center under the finger
           Animated.spring(pan, {
@@ -164,9 +175,11 @@ function DraggablePiece({
 
   // Handler to measure piece position when layout changes
   const handleLayout = (event) => {
+    console.log(`[${piece.runtimeId}] onLayout called`);
     if (viewRef.current) {
       viewRef.current.measureInWindow((x, y, width, height) => {
         pieceLayout.current = { x, y, width, height };
+        console.log(`[${piece.runtimeId}] measureInWindow complete:`, { x, y, width, height });
       });
     }
   };
