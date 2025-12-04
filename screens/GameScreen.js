@@ -9,6 +9,7 @@ import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced } from '../ut
 import { createEmptyGrid } from '../utils/gridHelpers';
 import { screenToGridPosition } from '../utils/gridCoordinates';
 import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/placementValidation';
+import { getFilledRows, getFilledColumns, clearLines, calculateClearScore } from '../utils/gridClearing';
 
 export default function GameScreen() {
   const [score, setScore] = useState(GAME_CONFIG.INITIAL_SCORE);
@@ -86,6 +87,19 @@ export default function GameScreen() {
       currentDragState.affectedCells.forEach(({ row, col }) => {
         newGrid[row][col].filled = true;
       });
+
+      // Check for filled rows and columns
+      const filledRows = getFilledRows(newGrid, GAME_CONFIG.BOARD_SIZE);
+      const filledColumns = getFilledColumns(newGrid, GAME_CONFIG.BOARD_SIZE);
+
+      // Clear them if any found
+      if (filledRows.length > 0 || filledColumns.length > 0) {
+        const clearedGrid = clearLines(newGrid, filledRows, filledColumns);
+        const points = calculateClearScore(filledRows.length, filledColumns.length);
+        setScore(prevScore => prevScore + points);
+        return clearedGrid;
+      }
+
       return newGrid;
     });
 

@@ -1,10 +1,5 @@
 # Stories
 
-## 1. Game Over
-the game ends when there are no possible places to fit a block.
-Implement a function "isPossibleToPlace" that receives the game state and a piece shape -> it returns true if the piece fits somewhere in the board, and false if it doesn't fit anywhere.
-Keep the logic as simple as possible, don't over engineer and don't worry about performance
-
 ## 2. Keep a max score when game is finished
 When the game is over, store the current score and prompt user to choose three letters as the name of who hit this score.
 
