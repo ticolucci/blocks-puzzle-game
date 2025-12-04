@@ -72,3 +72,31 @@ export const canPlacePiece = (piece, gridRow, gridCol, gridState, boardSize) => 
   // All checks passed
   return { valid: true, affectedCells };
 };
+
+/**
+ * Check if a piece can be placed anywhere on the board
+ * @param {{shape: number[][]}} piece - The piece to check
+ * @param {Array<Array<{row: number, col: number, filled: boolean}>>} gridState - Current grid state
+ * @param {number} boardSize - The size of the board (e.g., 10 for 10x10)
+ * @returns {boolean} True if piece can fit somewhere, false otherwise
+ * @example
+ * const piece = { shape: [[1, 1], [1, 1]] };
+ * const canFit = isPossibleToPlace(piece, gridState, 10);
+ * if (!canFit) {
+ *   console.log('Game over - piece cannot be placed');
+ * }
+ */
+export const isPossibleToPlace = (piece, gridState, boardSize) => {
+  // Try every possible position on the board
+  for (let row = 0; row < boardSize; row++) {
+    for (let col = 0; col < boardSize; col++) {
+      // Check if piece can be placed at this position
+      const result = canPlacePiece(piece, row, col, gridState, boardSize);
+      if (result.valid) {
+        return true;
+      }
+    }
+  }
+  // No valid position found
+  return false;
+};

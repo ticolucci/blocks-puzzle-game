@@ -1,4 +1,4 @@
-import { canPlacePiece, getAffectedCells } from '../placementValidation';
+import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../placementValidation';
 import { createEmptyGrid } from '../gridHelpers';
 
 describe('placementValidation', () => {
@@ -236,6 +236,108 @@ describe('placementValidation', () => {
         { row: 2, col: 0 },
         { row: 2, col: 2 },
       ]);
+    });
+  });
+
+  describe('isPossibleToPlace', () => {
+    const squarePiece = {
+      shape: [
+        [1, 1],
+        [1, 1],
+      ],
+    };
+
+    const linePiece = {
+      shape: [[1, 1, 1, 1, 1]],
+    };
+
+    const singleBlockPiece = {
+      shape: [[1]],
+    };
+
+    test('returns true for empty board with any piece', () => {
+      const result = isPossibleToPlace(squarePiece, emptyGrid, boardSize);
+      expect(result).toBe(true);
+    });
+
+    test('returns true when there is at least one valid position', () => {
+      // Fill most of the board except one corner
+      for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+          if (!(row >= 8 && col >= 8)) {
+            emptyGrid[row][col].filled = true;
+          }
+        }
+      }
+
+      const result = isPossibleToPlace(squarePiece, emptyGrid, boardSize);
+      expect(result).toBe(true);
+    });
+
+    test('returns false when board is completely full', () => {
+      // Fill entire board
+      for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+          emptyGrid[row][col].filled = true;
+        }
+      }
+
+      const result = isPossibleToPlace(singleBlockPiece, emptyGrid, boardSize);
+      expect(result).toBe(false);
+    });
+
+    test('returns false when no space is large enough for the piece', () => {
+      // Create a checkerboard pattern - no 2x2 space available
+      for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+          if ((row + col) % 2 === 0) {
+            emptyGrid[row][col].filled = true;
+          }
+        }
+      }
+
+      const result = isPossibleToPlace(squarePiece, emptyGrid, boardSize);
+      expect(result).toBe(false);
+    });
+
+    test('returns true for single block when at least one cell is empty', () => {
+      // Fill entire board except one cell
+      for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+          emptyGrid[row][col].filled = true;
+        }
+      }
+      emptyGrid[5][5].filled = false;
+
+      const result = isPossibleToPlace(singleBlockPiece, emptyGrid, boardSize);
+      expect(result).toBe(true);
+    });
+
+    test('returns false for large piece on nearly full board', () => {
+      // Fill board leaving only small gaps
+      for (let row = 0; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+          if (!(row === 5 && col === 5)) {
+            emptyGrid[row][col].filled = true;
+          }
+        }
+      }
+
+      // 5-cell line piece cannot fit
+      const result = isPossibleToPlace(linePiece, emptyGrid, boardSize);
+      expect(result).toBe(false);
+    });
+
+    test('returns true when piece fits at edge of board', () => {
+      // Fill board except top row
+      for (let row = 1; row < boardSize; row++) {
+        for (let col = 0; col < boardSize; col++) {
+          emptyGrid[row][col].filled = true;
+        }
+      }
+
+      const result = isPossibleToPlace(linePiece, emptyGrid, boardSize);
+      expect(result).toBe(true);
     });
   });
 });
