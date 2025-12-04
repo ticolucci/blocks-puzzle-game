@@ -255,4 +255,102 @@ describe('GameScreen', () => {
       expect(getRandomPiecesSpy).not.toHaveBeenCalled();
     });
   });
+
+  describe('Game Over Detection', () => {
+    test('does not show game over modal initially', () => {
+      const { queryByText } = render(<GameScreen />);
+      expect(queryByText('Game Over')).toBeNull();
+    });
+
+    test('shows game over modal when no pieces can be placed on full board', async () => {
+      // Create a completely full grid
+      const createFullGrid = () => {
+        const grid = [];
+        for (let row = 0; row < 10; row++) {
+          const gridRow = [];
+          for (let col = 0; col < 10; col++) {
+            gridRow.push({
+              row,
+              col,
+              filled: true,
+            });
+          }
+          grid.push(gridRow);
+        }
+        return grid;
+      };
+
+      // Mock createEmptyGrid to return full grid
+      const gridHelpers = require('../../utils/gridHelpers');
+      jest.spyOn(gridHelpers, 'createEmptyGrid').mockReturnValue(createFullGrid());
+
+      // Mock pieces - none can fit on a full board
+      const mockPieces = [
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 2, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_0', shapeName: 'SQUARE_2X2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 3, shape: [[1, 1, 1]], id: 'LINE_3_0', shapeName: 'LINE_3', rotation: 0, rotationIndex: 0, isPlaced: false },
+      ];
+
+      jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
+
+      const { queryByText } = render(<GameScreen />);
+
+      // Game over modal should appear since no pieces can fit
+      await waitFor(() => {
+        expect(queryByText('Game Over')).toBeTruthy();
+      });
+
+      // Cleanup
+      gridHelpers.createEmptyGrid.mockRestore();
+      pieceLibrary.initializeGamePieces.mockRestore();
+    });
+
+    test('displays current score in game over modal', async () => {
+      // Similar setup to previous test
+      const createFullGrid = () => {
+        const grid = [];
+        for (let row = 0; row < 10; row++) {
+          const gridRow = [];
+          for (let col = 0; col < 10; col++) {
+            gridRow.push({ row, col, filled: true });
+          }
+          grid.push(gridRow);
+        }
+        return grid;
+      };
+
+      const gridHelpers = require('../../utils/gridHelpers');
+      jest.spyOn(gridHelpers, 'createEmptyGrid').mockReturnValue(createFullGrid());
+
+      const mockPieces = [
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 2, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 3, shape: [[1, 1, 1]], id: 'LINE_3_0', shapeName: 'LINE_3', rotation: 0, rotationIndex: 0, isPlaced: false },
+      ];
+
+      jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
+
+      const { queryByText } = render(<GameScreen />);
+
+      // Game over should show immediately since no pieces can fit
+      await waitFor(() => {
+        expect(queryByText('Game Over')).toBeTruthy();
+      });
+
+      // Should display the score (which starts at 0)
+      expect(queryByText(/Score:/)).toBeTruthy();
+      expect(queryByText('0')).toBeTruthy();
+
+      gridHelpers.createEmptyGrid.mockRestore();
+      pieceLibrary.initializeGamePieces.mockRestore();
+    });
+
+    test('does not show game over when at least one piece can still be placed', () => {
+      // Use default empty grid where pieces can be placed
+      const { queryByText } = render(<GameScreen />);
+
+      // Should not show game over
+      expect(queryByText('Game Over')).toBeNull();
+    });
+  });
 });

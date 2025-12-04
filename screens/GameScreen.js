@@ -3,17 +3,19 @@ import { View, StyleSheet } from 'react-native';
 import GameBoard from '../components/GameBoard';
 import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
+import GameOverModal from '../components/GameOverModal';
 import { GAME_CONFIG } from '../constants/gameConfig';
 import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced } from '../utils/pieceLibrary';
 import { createEmptyGrid } from '../utils/gridHelpers';
 import { screenToGridPosition } from '../utils/gridCoordinates';
-import { canPlacePiece, getAffectedCells } from '../utils/placementValidation';
+import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/placementValidation';
 
 export default function GameScreen() {
   const [score, setScore] = useState(GAME_CONFIG.INITIAL_SCORE);
   const [pieces, setPieces] = useState(() => initializeGamePieces(3));
   const [gridState, setGridState] = useState(() => createEmptyGrid(GAME_CONFIG.BOARD_SIZE));
   const [boardLayout, setBoardLayout] = useState(null);
+  const [isGameOver, setIsGameOver] = useState(false);
 
   const [dragState, setDragState] = useState(null);
   const [previewCells, setPreviewCells] = useState(null);
@@ -49,6 +51,27 @@ export default function GameScreen() {
       setPieces(newPieces);
     }
   }, [pieces]);
+
+  // Check for game over when pieces or grid state changes
+  useEffect(() => {
+    // Get all unplaced pieces
+    const unplacedPieces = pieces.filter(piece => !piece.isPlaced);
+
+    // If no unplaced pieces, game is not over yet (new pieces will be generated)
+    if (unplacedPieces.length === 0) {
+      return;
+    }
+
+    // Check if any unplaced piece can be placed on the board
+    const canPlaceAny = unplacedPieces.some(piece =>
+      isPossibleToPlace(piece, gridState, GAME_CONFIG.BOARD_SIZE)
+    );
+
+    // If no piece can be placed, game is over
+    if (!canPlaceAny) {
+      setIsGameOver(true);
+    }
+  }, [pieces, gridState]);
 
   const placePiece = useCallback((piece) => {
     const currentDragState = dragStateRef.current;
@@ -173,6 +196,8 @@ export default function GameScreen() {
           onDragEnd={handleDragEnd}
         />
       </View>
+
+      <GameOverModal visible={isGameOver} score={score} />
     </View>
   );
 }
