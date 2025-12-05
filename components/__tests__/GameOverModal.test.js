@@ -186,5 +186,80 @@ describe('GameOverModal', () => {
         expect(input.props.value).toBe('ABC');
       });
     });
+
+    test('shows error message when save fails', async () => {
+      isHighScore.mockResolvedValue(true);
+      saveHighScore.mockRejectedValue(new Error('Save failed'));
+
+      const { getByPlaceholderText, getByText, findByText } = render(
+        <GameOverModal visible={true} score={1000} onRestart={jest.fn()} />
+      );
+
+      await waitFor(() => {
+        const input = getByPlaceholderText('AAA');
+        fireEvent.changeText(input, 'ABC');
+      });
+
+      const submitButton = getByText('Save Score');
+      fireEvent.press(submitButton);
+
+      const errorMessage = await findByText(/failed to save/i);
+      expect(errorMessage).toBeTruthy();
+    });
+
+    test('clears error message when user edits name after error', async () => {
+      isHighScore.mockResolvedValue(true);
+      saveHighScore.mockRejectedValue(new Error('Save failed'));
+
+      const { getByPlaceholderText, getByText, findByText, queryByText } = render(
+        <GameOverModal visible={true} score={1000} onRestart={jest.fn()} />
+      );
+
+      // Enter name and submit to trigger error
+      await waitFor(() => {
+        const input = getByPlaceholderText('AAA');
+        fireEvent.changeText(input, 'ABC');
+      });
+
+      const submitButton = getByText('Save Score');
+      fireEvent.press(submitButton);
+
+      // Wait for error to appear
+      await findByText(/failed to save/i);
+
+      // Edit the name
+      const input = getByPlaceholderText('AAA');
+      fireEvent.changeText(input, 'XYZ');
+
+      // Error should be cleared
+      await waitFor(() => {
+        expect(queryByText(/failed to save/i)).toBeNull();
+      });
+    });
+
+    test('re-enables submit button after save error', async () => {
+      isHighScore.mockResolvedValue(true);
+      saveHighScore.mockRejectedValue(new Error('Save failed'));
+
+      const { getByPlaceholderText, getByLabelText, findByText } = render(
+        <GameOverModal visible={true} score={1000} onRestart={jest.fn()} />
+      );
+
+      await waitFor(() => {
+        const input = getByPlaceholderText('AAA');
+        fireEvent.changeText(input, 'ABC');
+      });
+
+      const submitButton = getByLabelText('Save your high score');
+      fireEvent.press(submitButton);
+
+      // Wait for error
+      await findByText(/failed to save/i);
+
+      // Button should be enabled again
+      await waitFor(() => {
+        expect(submitButton.props.accessibilityState.disabled).toBe(false);
+      });
+    });
   });
 });
