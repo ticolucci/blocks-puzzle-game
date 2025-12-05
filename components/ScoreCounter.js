@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { GAME_CONFIG } from '../constants/gameConfig';
 
-export default function ScoreCounter({ score = GAME_CONFIG.INITIAL_SCORE }) {
+export default function ScoreCounter({ score = GAME_CONFIG.INITIAL_SCORE, maxScore }) {
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -39,6 +39,9 @@ export default function ScoreCounter({ score = GAME_CONFIG.INITIAL_SCORE }) {
       >
         {score}
       </Animated.Text>
+      {maxScore !== undefined && (
+        <Text style={styles.maxScore}>Max: {maxScore}</Text>
+      )}
     </View>
   );
 }
@@ -68,5 +71,11 @@ const styles = StyleSheet.create({
     fontSize: 36,
     fontWeight: 'bold',
     color: '#2c3e50',
+  },
+  maxScore: {
+    fontSize: 10,
+    color: '#999',
+    marginTop: 4,
+    fontWeight: '500',
   },
 });

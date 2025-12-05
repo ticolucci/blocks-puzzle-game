@@ -10,9 +10,11 @@ import { createEmptyGrid } from '../utils/gridHelpers';
 import { screenToGridPosition } from '../utils/gridCoordinates';
 import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/placementValidation';
 import { getFilledRows, getFilledColumns, clearLines, calculateClearScore } from '../utils/gridClearing';
+import { getMaxScore } from '../utils/highScores';
 
 export default function GameScreen() {
   const [score, setScore] = useState(GAME_CONFIG.INITIAL_SCORE);
+  const [maxScore, setMaxScore] = useState(0);
   const [pieces, setPieces] = useState(() => initializeGamePieces(3));
   const [gridState, setGridState] = useState(() => createEmptyGrid(GAME_CONFIG.BOARD_SIZE));
   const [boardLayout, setBoardLayout] = useState(null);
@@ -45,6 +47,15 @@ export default function GameScreen() {
     }, 100);
     return () => clearTimeout(timer);
   }, [getBoardLayout]);
+
+  // Load max score on mount
+  useEffect(() => {
+    const loadMaxScore = async () => {
+      const max = await getMaxScore();
+      setMaxScore(max);
+    };
+    loadMaxScore();
+  }, []);
 
   // Check if all pieces are placed and generate new ones
   useEffect(() => {
@@ -224,7 +235,7 @@ export default function GameScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.scoreContainer}>
-        <ScoreCounter score={score} />
+        <ScoreCounter score={score} maxScore={maxScore} />
       </View>
 
       <View style={styles.boardContainer}>

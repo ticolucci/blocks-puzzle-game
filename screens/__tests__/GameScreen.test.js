@@ -28,6 +28,15 @@ jest.mock('../../components/DraggablePiece', () => {
 });
 
 describe('GameScreen', () => {
+  const { getMaxScore, isHighScore } = require('../../utils/highScores');
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Set default mocks
+    getMaxScore.mockResolvedValue(0);
+    isHighScore.mockResolvedValue(false);
+  });
+
   test('renders game board', () => {
     const { getAllByTestId } = render(<GameScreen />);
     const cells = getAllByTestId(/grid-cell-/);
@@ -601,11 +610,16 @@ describe('GameScreen', () => {
 
     test('displays current max score from storage', async () => {
       getMaxScore.mockResolvedValue(5000);
-      const { getByText } = render(<GameScreen />);
+      const { getByText, debug } = render(<GameScreen />);
 
       await waitFor(() => {
-        expect(getByText('5000')).toBeTruthy();
+        // Check for "Max:" label
+        expect(getByText(/Max:/i)).toBeTruthy();
       });
+
+      // Verify the full text "Max: 5000" appears
+      const maxText = getByText(/Max:/i);
+      expect(maxText.children.join('')).toContain('5000');
     });
 
     test('loads max score when screen mounts', async () => {
