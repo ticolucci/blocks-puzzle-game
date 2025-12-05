@@ -84,26 +84,60 @@ function DraggablePiece({
             pageY: event.nativeEvent.pageY
           });
 
-          // Calculate piece center from pre-measured layout
-          const pieceCenterX = pieceLayout.current.x + (pieceLayout.current.width / 2);
-          const pieceCenterY = pieceLayout.current.y + (pieceLayout.current.height / 2);
+          // Check if we have valid pre-measured layout (width > 0 means measurement completed)
+          if (pieceLayout.current.width > 0) {
+            console.log(`[${piece.runtimeId}] Using pre-measured layout (fast path)`);
 
-          console.log(`[${piece.runtimeId}] calculated piece center:`, { pieceCenterX, pieceCenterY });
+            // Calculate piece center from pre-measured layout
+            const pieceCenterX = pieceLayout.current.x + (pieceLayout.current.width / 2);
+            const pieceCenterY = pieceLayout.current.y + (pieceLayout.current.height / 2);
 
-          // Calculate the offset needed to center the piece under the finger
-          // This moves the piece so its center aligns with the touch point
-          initialOffset.current = {
-            x: event.nativeEvent.pageX - pieceCenterX,
-            y: event.nativeEvent.pageY - pieceCenterY,
-          };
+            console.log(`[${piece.runtimeId}] calculated piece center:`, { pieceCenterX, pieceCenterY });
 
-          console.log(`[${piece.runtimeId}] initialOffset:`, initialOffset.current);
+            // Calculate the offset needed to center the piece under the finger
+            initialOffset.current = {
+              x: event.nativeEvent.pageX - pieceCenterX,
+              y: event.nativeEvent.pageY - pieceCenterY,
+            };
 
-          // Animate piece to center under the finger
-          Animated.spring(pan, {
-            toValue: initialOffset.current,
-            ...CENTER_ANIMATION_CONFIG,
-          }).start();
+            console.log(`[${piece.runtimeId}] initialOffset:`, initialOffset.current);
+
+            // Animate piece to center under the finger
+            Animated.spring(pan, {
+              toValue: initialOffset.current,
+              ...CENTER_ANIMATION_CONFIG,
+            }).start();
+          } else {
+            console.log(`[${piece.runtimeId}] Layout not ready, measuring now (fallback path)`);
+
+            // Fallback: measure now if layout hasn't been captured yet
+            if (viewRef.current) {
+              event.persist();
+              viewRef.current.measureInWindow((x, y, width, height) => {
+                console.log(`[${piece.runtimeId}] measureInWindow fallback complete:`, { x, y, width, height });
+
+                // Calculate piece center
+                const pieceCenterX = x + (width / 2);
+                const pieceCenterY = y + (height / 2);
+
+                console.log(`[${piece.runtimeId}] calculated piece center (fallback):`, { pieceCenterX, pieceCenterY });
+
+                // Calculate the offset needed to center the piece under the finger
+                initialOffset.current = {
+                  x: event.nativeEvent.pageX - pieceCenterX,
+                  y: event.nativeEvent.pageY - pieceCenterY,
+                };
+
+                console.log(`[${piece.runtimeId}] initialOffset (fallback):`, initialOffset.current);
+
+                // Animate piece to center under the finger
+                Animated.spring(pan, {
+                  toValue: initialOffset.current,
+                  ...CENTER_ANIMATION_CONFIG,
+                }).start();
+              });
+            }
+          }
 
           if (onDragStart) {
             onDragStart(piece);
