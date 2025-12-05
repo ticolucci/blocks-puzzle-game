@@ -1,4 +1,17 @@
 {
   "name": "BlocksPuzzleGame",
-  "displayName": "Blocks Puzzle Game"
+  "displayName": "Blocks Puzzle Game",
+  "extra": {
+    "eas": {
+      "projectId": "6f213003-f0d8-4017-a776-4e1fe064a83c"
+    }
+  },
+  "expo": {
+    "ios": {
+      "bundleIdentifier": "com.ticolucci.blockpuzzle",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
+  }
 }
