@@ -115,6 +115,24 @@ describe('highScores utility', () => {
         JSON.stringify(existingScores)
       );
     });
+
+    test('throws error when name is not exactly 3 characters', async () => {
+      await expect(saveHighScore('AB', 1000)).rejects.toThrow('Name must be exactly 3 letters');
+      await expect(saveHighScore('ABCD', 1000)).rejects.toThrow('Name must be exactly 3 letters');
+      await expect(saveHighScore('', 1000)).rejects.toThrow('Name must be exactly 3 letters');
+    });
+
+    test('throws error when name contains non-letter characters', async () => {
+      await expect(saveHighScore('AB1', 1000)).rejects.toThrow('Name must be exactly 3 letters');
+      await expect(saveHighScore('A-B', 1000)).rejects.toThrow('Name must be exactly 3 letters');
+      await expect(saveHighScore('A B', 1000)).rejects.toThrow('Name must be exactly 3 letters');
+    });
+
+    test('throws error when score is not a positive number', async () => {
+      await expect(saveHighScore('ABC', -100)).rejects.toThrow('Score must be a positive number');
+      await expect(saveHighScore('ABC', 0)).rejects.toThrow('Score must be a positive number');
+      await expect(saveHighScore('ABC', NaN)).rejects.toThrow('Score must be a positive number');
+    });
   });
 
   describe('getMaxScore', () => {

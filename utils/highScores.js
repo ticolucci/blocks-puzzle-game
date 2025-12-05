@@ -1,7 +1,28 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { GAME_CONFIG } from '../constants/gameConfig';
 
-const HIGH_SCORES_KEY = 'high_scores';
-const MAX_HIGH_SCORES = 3;
+/**
+ * Validate player name
+ * @param {string} name - Player name to validate
+ * @throws {Error} If name is not exactly 3 letters
+ */
+function validateName(name) {
+  const letterRegex = /^[a-zA-Z]{3}$/;
+  if (!letterRegex.test(name)) {
+    throw new Error('Name must be exactly 3 letters');
+  }
+}
+
+/**
+ * Validate score
+ * @param {number} score - Score to validate
+ * @throws {Error} If score is not a positive number
+ */
+function validateScore(score) {
+  if (typeof score !== 'number' || isNaN(score) || score <= 0) {
+    throw new Error('Score must be a positive number');
+  }
+}
 
 /**
  * Retrieve all high scores from storage
@@ -9,7 +30,7 @@ const MAX_HIGH_SCORES = 3;
  */
 export async function getHighScores() {
   try {
-    const data = await AsyncStorage.getItem(HIGH_SCORES_KEY);
+    const data = await AsyncStorage.getItem(GAME_CONFIG.HIGH_SCORES_KEY);
     if (!data) {
       return [];
     }
@@ -24,8 +45,13 @@ export async function getHighScores() {
  * Save a new high score
  * @param {string} name - 3-letter player name
  * @param {number} score - The score to save
+ * @throws {Error} If name or score is invalid
  */
 export async function saveHighScore(name, score) {
+  // Validate inputs
+  validateName(name);
+  validateScore(score);
+
   try {
     const existingScores = await getHighScores();
 
@@ -35,12 +61,13 @@ export async function saveHighScore(name, score) {
     // Sort by score descending
     updatedScores.sort((a, b) => b.score - a.score);
 
-    // Keep only top 3
-    const topScores = updatedScores.slice(0, MAX_HIGH_SCORES);
+    // Keep only top scores
+    const topScores = updatedScores.slice(0, GAME_CONFIG.MAX_HIGH_SCORES);
 
-    await AsyncStorage.setItem(HIGH_SCORES_KEY, JSON.stringify(topScores));
+    await AsyncStorage.setItem(GAME_CONFIG.HIGH_SCORES_KEY, JSON.stringify(topScores));
   } catch (error) {
     console.error('Error saving high score:', error);
+    throw error; // Re-throw after logging
   }
 }
 
@@ -71,7 +98,7 @@ export async function isHighScore(score) {
     const scores = await getHighScores();
 
     // If fewer than max scores, it's automatically a high score
-    if (scores.length < MAX_HIGH_SCORES) {
+    if (scores.length < GAME_CONFIG.MAX_HIGH_SCORES) {
       return true;
     }
 

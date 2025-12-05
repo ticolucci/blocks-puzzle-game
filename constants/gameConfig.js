@@ -4,6 +4,9 @@ export const GAME_CONFIG = {
   MAX_PIECE_SIZE: 5,
   INITIAL_SCORE: 0,
   LINE_CLEAR_BASE_POINTS: 1000,
+  HIGH_SCORES_KEY: 'high_scores',
+  MAX_HIGH_SCORES: 3,
+  PLAYER_NAME_LENGTH: 3,
 };
 
 export const COLORS = {
