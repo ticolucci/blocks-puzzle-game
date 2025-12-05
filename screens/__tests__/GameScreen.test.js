@@ -3,6 +3,13 @@ import { render, waitFor, fireEvent } from '@testing-library/react-native';
 import GameScreen from '../GameScreen';
 import * as pieceLibrary from '../../utils/pieceLibrary';
 
+// Mock highScores utility
+jest.mock('../../utils/highScores', () => ({
+  getMaxScore: jest.fn(),
+  isHighScore: jest.fn(),
+  saveHighScore: jest.fn(),
+}));
+
 // Mock DraggablePiece to make pieces queryable by testID
 jest.mock('../../components/DraggablePiece', () => {
   const React = require('react');
@@ -564,5 +571,61 @@ describe('GameScreen', () => {
 
     // Note: Grid clearing is tested thoroughly in unit tests (gridClearing.test.js)
     // and the integration tests above verify it works in the game flow
+  });
+
+  describe('Max Score Display', () => {
+    const { getMaxScore } = require('../../utils/highScores');
+
+    beforeEach(() => {
+      jest.clearAllMocks();
+    });
+
+    test('displays max score label', async () => {
+      getMaxScore.mockResolvedValue(0);
+      const { getByText } = render(<GameScreen />);
+
+      await waitFor(() => {
+        expect(getByText(/Max:/i)).toBeTruthy();
+      });
+    });
+
+    test('displays max score of 0 when no high scores exist', async () => {
+      getMaxScore.mockResolvedValue(0);
+      const { getByText } = render(<GameScreen />);
+
+      await waitFor(() => {
+        expect(getByText(/Max:/i)).toBeTruthy();
+        expect(getByText('0')).toBeTruthy();
+      });
+    });
+
+    test('displays current max score from storage', async () => {
+      getMaxScore.mockResolvedValue(5000);
+      const { getByText } = render(<GameScreen />);
+
+      await waitFor(() => {
+        expect(getByText('5000')).toBeTruthy();
+      });
+    });
+
+    test('loads max score when screen mounts', async () => {
+      getMaxScore.mockResolvedValue(1000);
+      render(<GameScreen />);
+
+      await waitFor(() => {
+        expect(getMaxScore).toHaveBeenCalled();
+      });
+    });
+
+    test('displays max score below current score', async () => {
+      getMaxScore.mockResolvedValue(2500);
+      const { getByText } = render(<GameScreen />);
+
+      await waitFor(() => {
+        // Both score and max should be visible
+        expect(getByText('Score')).toBeTruthy();
+        expect(getByText(/Max:/i)).toBeTruthy();
+      });
+    });
   });
 });
