@@ -2,6 +2,13 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 import GameScreen from '../GameScreen';
 
+// Mock highScores utility
+jest.mock('../../utils/highScores', () => ({
+  getMaxScore: jest.fn().mockResolvedValue(0),
+  isHighScore: jest.fn().mockResolvedValue(false),
+  saveHighScore: jest.fn(),
+}));
+
 /**
  * Integration tests for GameScreen drag-and-drop functionality
  *
