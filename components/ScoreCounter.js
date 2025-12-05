@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { GAME_CONFIG } from '../constants/gameConfig';
 
@@ -25,6 +25,16 @@ export default function ScoreCounter({ score = GAME_CONFIG.INITIAL_SCORE, maxSco
     }
   }, [score, scaleAnim]);
 
+  // Calculate responsive font size based on number of digits
+  const scoreFontSize = useMemo(() => {
+    const digits = score.toString().length;
+    if (digits <= 3) return 72;
+    if (digits === 4) return 60;
+    if (digits === 5) return 50;
+    if (digits === 6) return 42;
+    return Math.max(28, 72 - (digits - 3) * 10);
+  }, [score]);
+
   return (
     <View
       style={styles.container}
@@ -34,7 +44,7 @@ export default function ScoreCounter({ score = GAME_CONFIG.INITIAL_SCORE, maxSco
       <Animated.Text
         style={[
           styles.score,
-          { transform: [{ scale: scaleAnim }] }
+          { fontSize: scoreFontSize, transform: [{ scale: scaleAnim }] }
         ]}
       >
         {score}
@@ -52,7 +62,7 @@ const styles = StyleSheet.create({
     padding: 12,
     backgroundColor: '#f8f9fa',
     borderRadius: 8,
-    minWidth: 80,
+    width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -68,7 +78,6 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   score: {
-    fontSize: 36,
     fontWeight: 'bold',
     color: '#2c3e50',
   },

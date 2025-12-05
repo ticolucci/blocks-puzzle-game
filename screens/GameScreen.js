@@ -273,13 +273,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   scoreContainer: {
-    alignSelf: 'flex-end',
-    height: 60,
-    width: 60,
+    width: '100%',
+    paddingHorizontal: 20,
     zIndex: 10,
     marginTop: 15,
     marginBottom: 40,
-    marginRight: 40,
   },
   boardContainer: {
     marginBottom: 40,
