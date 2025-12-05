@@ -15,6 +15,13 @@ const SPRING_CONFIG = {
   useNativeDriver: true,
 };
 
+// Quick animation for centering piece under finger after pickup
+const CENTER_ANIMATION_CONFIG = {
+  friction: 12,
+  tension: 150,
+  useNativeDriver: true,
+};
+
 /**
  * A draggable wrapper for the Piece component with PanResponder gesture handling
  * Provides smooth drag-and-drop interaction with return-to-origin animation
@@ -54,11 +61,11 @@ function DraggablePiece({
   // Ref to the View component for measuring
   const viewRef = useRef(null);
 
-  // Store the piece's screen position and center
-  const pieceCenterScreen = useRef({ x: 0, y: 0 });
+  // Store the piece's layout information (measured on layout)
+  const pieceLayout = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
-  // Store the initial touch offset from the piece center
-  const touchOffset = useRef({ x: 0, y: 0 });
+  // Store the initial centering offset applied when picking up the piece
+  const initialOffset = useRef({ x: 0, y: 0 });
 
   // PanResponder for gesture handling
   const panResponder = useRef(
@@ -70,30 +77,45 @@ function DraggablePiece({
       // Gesture started
       onPanResponderGrant: (event) => {
         if (!isPlaced && !disabled) {
-          // Measure piece position at drag start to get accurate absolute coordinates
-          if (viewRef.current) {
-            event.persist();
-            viewRef.current.measureInWindow((x, y, width, height) => {
-              console.log('measureInWindow at drag start:', { x, y, width, height });
+          // Check if we have valid pre-measured layout (width > 0 means measurement completed)
+          if (pieceLayout.current.width > 0) {
+            // Fast path: use pre-measured layout
+            const pieceCenterX = pieceLayout.current.x + (pieceLayout.current.width / 2);
+            const pieceCenterY = pieceLayout.current.y + (pieceLayout.current.height / 2);
 
-              // Calculate absolute screen position of piece center
-              pieceCenterScreen.current = { 
-                x: x + (width / 2),
-                y: y + (height / 2)
-              };
+            // Calculate the offset needed to center the piece under the finger
+            initialOffset.current = {
+              x: event.nativeEvent.pageX - pieceCenterX,
+              y: event.nativeEvent.pageY - pieceCenterY,
+            };
 
-              // Calculate offset from touch point to piece center
-              touchOffset.current = {
-                x: (event.nativeEvent.pageX - pieceCenterScreen.current.x) * -1,
-                y: (event.nativeEvent.pageY - pieceCenterScreen.current.y) * -1,
-              };
+            // Animate piece to center under the finger
+            Animated.spring(pan, {
+              toValue: initialOffset.current,
+              ...CENTER_ANIMATION_CONFIG,
+            }).start();
+          } else {
+            // Fallback: measure now if layout hasn't been captured yet
+            if (viewRef.current) {
+              event.persist();
+              viewRef.current.measureInWindow((x, y, width, height) => {
+                // Calculate piece center
+                const pieceCenterX = x + (width / 2);
+                const pieceCenterY = y + (height / 2);
 
-              console.log('Drag started');
-              console.log('Piece center screen:', pieceCenterScreen.current);
-              console.log('Piece center screen (height and width):', );
+                // Calculate the offset needed to center the piece under the finger
+                initialOffset.current = {
+                  x: event.nativeEvent.pageX - pieceCenterX,
+                  y: event.nativeEvent.pageY - pieceCenterY,
+                };
 
-              console.log('Touch offset from center:', touchOffset.current);
-            });
+                // Animate piece to center under the finger
+                Animated.spring(pan, {
+                  toValue: initialOffset.current,
+                  ...CENTER_ANIMATION_CONFIG,
+                }).start();
+              });
+            }
           }
 
           if (onDragStart) {
@@ -105,15 +127,19 @@ function DraggablePiece({
       // Gesture moving
       onPanResponderMove: (event, gestureState) => {
         if (!isPlaced && !disabled) {
-          // Update animated position
-          pan.setValue({ x: gestureState.dx, y: gestureState.dy });
+          // Update animated position, adding the initial centering offset
+          // to the gesture displacement so the piece stays centered under the finger
+          pan.setValue({
+            x: initialOffset.current.x + gestureState.dx,
+            y: initialOffset.current.y + gestureState.dy
+          });
 
-          // Call onDragMove with adjusted screen coordinates (accounting for initial touch offset)
+          // Call onDragMove with current touch position (piece is centered under finger)
           if (onDragMove) {
             onDragMove(
               piece,
-              event.nativeEvent.pageX - touchOffset.current.x,
-              event.nativeEvent.pageY - touchOffset.current.y
+              event.nativeEvent.pageX,
+              event.nativeEvent.pageY
             );
           }
         }
@@ -126,6 +152,9 @@ function DraggablePiece({
             onDragEnd(piece);
           }
 
+          // Reset initial offset for next drag
+          initialOffset.current = { x: 0, y: 0 };
+
           // Return to origin with spring animation
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
@@ -137,6 +166,9 @@ function DraggablePiece({
       // Gesture terminated (interrupted by another gesture)
       onPanResponderTerminate: () => {
         if (!isPlaced && !disabled) {
+          // Reset initial offset for next drag
+          initialOffset.current = { x: 0, y: 0 };
+
           // Return to origin with spring animation
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
@@ -154,10 +186,20 @@ function DraggablePiece({
     }
   }, [isPlaced, pan]);
 
+  // Handler to measure piece position when layout changes
+  const handleLayout = (event) => {
+    if (viewRef.current) {
+      viewRef.current.measureInWindow((x, y, width, height) => {
+        pieceLayout.current = { x, y, width, height };
+      });
+    }
+  };
+
   return (
     <Animated.View
       ref={viewRef}
       testID={testID}
+      onLayout={handleLayout}
       {...panResponder.panHandlers}
       style={{
         transform: [{ translateX: pan.x }, { translateY: pan.y }],
