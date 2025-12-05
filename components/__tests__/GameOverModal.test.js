@@ -9,14 +9,28 @@ jest.mock('../../utils/highScores', () => ({
 }));
 
 describe('GameOverModal', () => {
-  test('renders game over title', () => {
-    const { getByText } = render(<GameOverModal visible={true} score={100} />);
-    expect(getByText('Game Over')).toBeTruthy();
+  const { isHighScore } = require('../../utils/highScores');
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    // Default to non-high score for basic tests
+    isHighScore.mockResolvedValue(false);
   });
 
-  test('displays the score', () => {
+  test('renders game over title', async () => {
+    const { getByText } = render(<GameOverModal visible={true} score={100} />);
+
+    await waitFor(() => {
+      expect(getByText('Game Over')).toBeTruthy();
+    });
+  });
+
+  test('displays the score', async () => {
     const { getByText } = render(<GameOverModal visible={true} score={250} />);
-    expect(getByText('Score: 250')).toBeTruthy();
+
+    await waitFor(() => {
+      expect(getByText('Score: 250')).toBeTruthy();
+    });
   });
 
   test('does not render when visible is false', () => {
@@ -24,26 +38,34 @@ describe('GameOverModal', () => {
     expect(queryByText('Game Over')).toBeNull();
   });
 
-  test('renders New Game button', () => {
+  test('renders New Game button', async () => {
     const { getByText } = render(<GameOverModal visible={true} score={100} />);
-    expect(getByText('New Game')).toBeTruthy();
+
+    await waitFor(() => {
+      expect(getByText('New Game')).toBeTruthy();
+    });
   });
 
-  test('calls onRestart when New Game button is pressed', () => {
+  test('calls onRestart when New Game button is pressed', async () => {
     const mockOnRestart = jest.fn();
     const { getByText } = render(
       <GameOverModal visible={true} score={100} onRestart={mockOnRestart} />
     );
 
-    const newGameButton = getByText('New Game');
-    fireEvent.press(newGameButton);
+    await waitFor(() => {
+      const newGameButton = getByText('New Game');
+      fireEvent.press(newGameButton);
+    });
 
     expect(mockOnRestart).toHaveBeenCalledTimes(1);
   });
 
-  test('New Game button has proper accessibility label', () => {
+  test('New Game button has proper accessibility label', async () => {
     const { getByLabelText } = render(<GameOverModal visible={true} score={100} />);
-    expect(getByLabelText('Start a new game')).toBeTruthy();
+
+    await waitFor(() => {
+      expect(getByLabelText('Start a new game')).toBeTruthy();
+    });
   });
 
   describe('High Score Name Input', () => {
@@ -116,17 +138,17 @@ describe('GameOverModal', () => {
 
     test('submit button is disabled when name is less than 3 characters', async () => {
       isHighScore.mockResolvedValue(true);
-      const { getByPlaceholderText, getByText } = render(
+      const { getByPlaceholderText, getByLabelText } = render(
         <GameOverModal visible={true} score={1000} onRestart={jest.fn()} />
       );
 
       await waitFor(() => {
         const input = getByPlaceholderText('AAA');
         fireEvent.changeText(input, 'AB');
-
-        const submitButton = getByText('Save Score');
-        expect(submitButton.props.accessibilityState?.disabled).toBe(true);
       });
+
+      const submitButton = getByLabelText('Save your high score');
+      expect(submitButton.props.accessibilityState.disabled).toBe(true);
     });
 
     test('saves high score and calls onRestart when valid name is submitted', async () => {
