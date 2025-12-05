@@ -6,6 +6,7 @@ export default function GameOverModal({ visible, score, onRestart }) {
   const [playerName, setPlayerName] = useState('');
   const [isHighScoreValue, setIsHighScoreValue] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (visible) {
@@ -13,13 +14,19 @@ export default function GameOverModal({ visible, score, onRestart }) {
       isHighScore(score).then(result => {
         setIsHighScoreValue(result);
       });
-      // Reset name when modal becomes visible
+      // Reset state when modal becomes visible
       setPlayerName('');
       setIsSaving(false);
+      setErrorMessage('');
     }
   }, [visible, score]);
 
   const handleNameChange = (text) => {
+    // Clear error when user starts editing again
+    if (errorMessage) {
+      setErrorMessage('');
+    }
+
     // Remove non-letter characters and convert to uppercase
     const cleanedText = text.replace(/[^a-zA-Z]/g, '').toUpperCase();
     // Limit to 3 characters
@@ -33,11 +40,14 @@ export default function GameOverModal({ visible, score, onRestart }) {
     }
 
     setIsSaving(true);
+    setErrorMessage('');
+
     try {
       await saveHighScore(playerName, score);
       onRestart();
     } catch (error) {
       console.error('Error saving high score:', error);
+      setErrorMessage('Failed to save high score. Please try again.');
       setIsSaving(false);
     }
   };
@@ -69,6 +79,9 @@ export default function GameOverModal({ visible, score, onRestart }) {
                 autoFocus={true}
                 accessibilityLabel="Enter your 3-letter name"
               />
+              {errorMessage ? (
+                <Text style={styles.errorText}>{errorMessage}</Text>
+              ) : null}
               <TouchableOpacity
                 style={[styles.button, isSubmitDisabled && styles.buttonDisabled]}
                 onPress={handleSaveScore}
@@ -139,8 +152,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     width: 100,
-    marginBottom: 20,
+    marginBottom: 10,
     letterSpacing: 8,
+  },
+  errorText: {
+    color: '#F44336',
+    fontSize: 12,
+    marginBottom: 10,
+    textAlign: 'center',
   },
   button: {
     backgroundColor: '#007AFF',
