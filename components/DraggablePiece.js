@@ -77,22 +77,11 @@ function DraggablePiece({
       // Gesture started
       onPanResponderGrant: (event) => {
         if (!isPlaced && !disabled) {
-          console.log(`\n[${piece.runtimeId}] === DRAG START ===`);
-          console.log(`[${piece.runtimeId}] pieceLayout:`, pieceLayout.current);
-          console.log(`[${piece.runtimeId}] touch position:`, {
-            pageX: event.nativeEvent.pageX,
-            pageY: event.nativeEvent.pageY
-          });
-
           // Check if we have valid pre-measured layout (width > 0 means measurement completed)
           if (pieceLayout.current.width > 0) {
-            console.log(`[${piece.runtimeId}] Using pre-measured layout (fast path)`);
-
-            // Calculate piece center from pre-measured layout
+            // Fast path: use pre-measured layout
             const pieceCenterX = pieceLayout.current.x + (pieceLayout.current.width / 2);
             const pieceCenterY = pieceLayout.current.y + (pieceLayout.current.height / 2);
-
-            console.log(`[${piece.runtimeId}] calculated piece center:`, { pieceCenterX, pieceCenterY });
 
             // Calculate the offset needed to center the piece under the finger
             initialOffset.current = {
@@ -100,35 +89,25 @@ function DraggablePiece({
               y: event.nativeEvent.pageY - pieceCenterY,
             };
 
-            console.log(`[${piece.runtimeId}] initialOffset:`, initialOffset.current);
-
             // Animate piece to center under the finger
             Animated.spring(pan, {
               toValue: initialOffset.current,
               ...CENTER_ANIMATION_CONFIG,
             }).start();
           } else {
-            console.log(`[${piece.runtimeId}] Layout not ready, measuring now (fallback path)`);
-
             // Fallback: measure now if layout hasn't been captured yet
             if (viewRef.current) {
               event.persist();
               viewRef.current.measureInWindow((x, y, width, height) => {
-                console.log(`[${piece.runtimeId}] measureInWindow fallback complete:`, { x, y, width, height });
-
                 // Calculate piece center
                 const pieceCenterX = x + (width / 2);
                 const pieceCenterY = y + (height / 2);
-
-                console.log(`[${piece.runtimeId}] calculated piece center (fallback):`, { pieceCenterX, pieceCenterY });
 
                 // Calculate the offset needed to center the piece under the finger
                 initialOffset.current = {
                   x: event.nativeEvent.pageX - pieceCenterX,
                   y: event.nativeEvent.pageY - pieceCenterY,
                 };
-
-                console.log(`[${piece.runtimeId}] initialOffset (fallback):`, initialOffset.current);
 
                 // Animate piece to center under the finger
                 Animated.spring(pan, {
@@ -209,11 +188,9 @@ function DraggablePiece({
 
   // Handler to measure piece position when layout changes
   const handleLayout = (event) => {
-    console.log(`[${piece.runtimeId}] onLayout called`);
     if (viewRef.current) {
       viewRef.current.measureInWindow((x, y, width, height) => {
         pieceLayout.current = { x, y, width, height };
-        console.log(`[${piece.runtimeId}] measureInWindow complete:`, { x, y, width, height });
       });
     }
   };
