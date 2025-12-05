@@ -11,6 +11,7 @@ import { screenToGridPosition } from '../utils/gridCoordinates';
 import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/placementValidation';
 import { getFilledRows, getFilledColumns, clearLines, calculateClearScore } from '../utils/gridClearing';
 import { getMaxScore } from '../utils/highScores';
+import { centerToAnchor } from '../utils/pieceHelpers';
 
 export default function GameScreen() {
   const [score, setScore] = useState(GAME_CONFIG.INITIAL_SCORE);
@@ -152,8 +153,8 @@ export default function GameScreen() {
     if (gameBoardRef.current) {
       gameBoardRef.current.measureInWindow((x, y, width, height) => {
         const newLayout = {
-          x: x + GAME_CONFIG.CELL_SIZE,
-          y: y + GAME_CONFIG.CELL_SIZE,
+          x,
+          y,
           width,
           height,
           cellSize: GAME_CONFIG.CELL_SIZE,
@@ -181,9 +182,9 @@ export default function GameScreen() {
       return;
     }
 
-    // Convert screen coordinates to grid position
-    const gridPosition = screenToGridPosition(screenX, screenY, currentBoardLayout);
-    if (!gridPosition) {
+    // Convert screen coordinates to grid position (this is the CENTER of the piece)
+    const centerGridPosition = screenToGridPosition(screenX, screenY, currentBoardLayout);
+    if (!centerGridPosition) {
       // Outside grid bounds
       setPreviewCells(null);
       setPreviewValid(false);
@@ -191,11 +192,14 @@ export default function GameScreen() {
       return;
     }
 
-    // Validate placement
-    const validation = canPlacePiece(piece, gridPosition.row, gridPosition.col, currentGridState, GAME_CONFIG.BOARD_SIZE);
+    // Convert center position to top-left anchor position
+    const anchorPosition = centerToAnchor(centerGridPosition, piece.shape);
+
+    // Validate placement using the anchor position
+    const validation = canPlacePiece(piece, anchorPosition.row, anchorPosition.col, currentGridState, GAME_CONFIG.BOARD_SIZE);
 
     // Update preview
-    setPreviewCells(validation.valid ? validation.affectedCells : getAffectedCells(piece, gridPosition.row, gridPosition.col));
+    setPreviewCells(validation.valid ? validation.affectedCells : getAffectedCells(piece, anchorPosition.row, anchorPosition.col));
     setPreviewValid(validation.valid);
 
     // Update drag state
@@ -204,7 +208,7 @@ export default function GameScreen() {
       currentX: screenX,
       currentY: screenY,
       isValid: validation.valid,
-      targetGridPosition: gridPosition,
+      targetGridPosition: anchorPosition,
       affectedCells: validation.affectedCells,
     });
   }, []); // Empty deps - function never recreated, always uses refs
