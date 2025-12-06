@@ -8,6 +8,7 @@ export const GAME_CONFIG = {
   HIGH_SCORES_KEY: 'high_scores',
   MAX_HIGH_SCORES: 3,
   PLAYER_NAME_LENGTH: 3,
+  BOMB_RADIUS: 2, // Radius for bomb piece clearing
 };
 
 export const COLORS = {
@@ -18,11 +19,17 @@ export const COLORS = {
   CELL_CLEARING: '#FFD700', // Gold color for clearing animation
   PREVIEW_VALID: 'rgba(76, 175, 80, 0.3)', // Green with 30% opacity
   PREVIEW_INVALID: 'rgba(244, 67, 54, 0.3)', // Red with 30% opacity
+  RED: '#FF0000',
+  BLUE: '#0000FF',
+  GREEN: '#00FF00',
+  YELLOW: '#FFFF00',
+  PURPLE: '#800080',
+  PINK: '#FFC0CB',
 };
 
 export const COLOR_POOL = [
-  '#FF0000', // red
-  '#0000FF', // blue
+  COLORS.RED,
+  COLORS.BLUE,
   '#00FF00', // green
   '#FFFF00', // yellow
   '#800080', // purple

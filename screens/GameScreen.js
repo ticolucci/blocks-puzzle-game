@@ -10,6 +10,7 @@ import { createEmptyGrid } from '../utils/gridHelpers';
 import { screenToGridPosition } from '../utils/gridCoordinates';
 import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/placementValidation';
 import { getFilledRows, getFilledColumns, clearLines, calculateClearScore } from '../utils/gridClearing';
+import { clearBombRadius } from '../utils/bombClearing';
 import { getMaxScore } from '../utils/highScores';
 import { centerToAnchor } from '../utils/pieceHelpers';
 
@@ -103,7 +104,23 @@ export default function GameScreen() {
         newGrid[row][col].color = piece.color;
       });
 
-      // Check for filled rows and columns
+      // Check if piece is a bomb
+      if (piece.type === 'bomb') {
+        // Get bomb position (first affected cell)
+        const bombPosition = currentDragState.affectedCells[0];
+
+        // Clear cells in radius
+        const clearedGrid = clearBombRadius(newGrid, bombPosition.row, bombPosition.col, GAME_CONFIG.BOMB_RADIUS);
+
+        // Set grid immediately (no animation for now)
+        setTimeout(() => {
+          setGridState(clearedGrid);
+        }, 0);
+
+        return newGrid;
+      }
+
+      // Check for filled rows and columns (normal pieces)
       const filledRows = getFilledRows(newGrid, GAME_CONFIG.BOARD_SIZE);
       const filledColumns = getFilledColumns(newGrid, GAME_CONFIG.BOARD_SIZE);
 
