@@ -229,13 +229,19 @@ export function getPieceLibrary() {
 /**
  * Gets N random pieces from the library with unique runtime IDs
  * @param {number} count - Number of random pieces to select
+ * @param {number} rainbowProbability - Probability (0-1) of generating a rainbow piece (defaults to GAME_CONFIG.RAINBOW_PROBABILITY)
  * @returns {Array} Array of random pieces with runtime IDs
  */
-export function getRandomPieces(count) {
+export function getRandomPieces(count, rainbowProbability = GAME_CONFIG.RAINBOW_PROBABILITY) {
   const library = getPieceLibrary();
 
   // Pick randomly for each piece
   return Array.from({ length: count }, () => {
+    // Decide if this piece should be a rainbow piece
+    if (Math.random() < rainbowProbability) {
+      return createRainbowPiece();
+    }
+
     const randomIndex = Math.floor(Math.random() * library.length);
     const libraryPiece = library[randomIndex];
     const svgId = getRandomSvgId();
@@ -257,17 +263,10 @@ export function getRandomPieces(count) {
  * @returns {Array} Array of pieces with isPlaced set to false
  */
 export function initializeGamePieces(count, rainbowProbability = GAME_CONFIG.RAINBOW_PROBABILITY) {
-  return Array.from({ length: count }, () => {
-    // Decide if this piece should be a rainbow piece
-    const piece = Math.random() < rainbowProbability
-      ? createRainbowPiece()
-      : getRandomPieces(1)[0];
-
-    return {
-      ...piece,
-      isPlaced: false,
-    };
-  });
+  return getRandomPieces(count, rainbowProbability).map(piece => ({
+    ...piece,
+    isPlaced: false,
+  }));
 }
 
 /**

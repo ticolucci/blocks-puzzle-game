@@ -1,4 +1,4 @@
-import { getPieceLibrary, areAllPiecesPlaced } from '../pieceLibrary';
+import { getPieceLibrary, getRandomPieces, areAllPiecesPlaced } from '../pieceLibrary';
 import { PIECE_SHAPES } from '../../constants/gameConfig';
 
 describe('pieceLibrary', () => {
@@ -57,7 +57,7 @@ describe('pieceLibrary', () => {
 
     test('pieces are selected from the library', () => {
       const library = getPieceLibrary();
-      const pieces = getRandomPieces(3);
+      const pieces = getRandomPieces(3, 0); // 0% rainbow probability
 
       pieces.forEach(piece => {
         // Should find a matching piece in library (ignoring runtimeId)
@@ -90,9 +90,9 @@ describe('pieceLibrary', () => {
       });
     });
 
-    test('piece svgRefs are from the SVG_ID_POOL', () => {
+    test('piece svgRefs are from the SVG_ID_POOL for normal pieces', () => {
       const { SVG_ID_POOL } = require('../../constants/gameConfig');
-      const pieces = getRandomPieces(10);
+      const pieces = getRandomPieces(10, 0); // 0% rainbow probability
 
       pieces.forEach(piece => {
         // All svgRefs for a normal piece should be the same SVG ID
@@ -100,6 +100,28 @@ describe('pieceLibrary', () => {
         expect(uniqueSvgIds).toHaveLength(1);
         expect(SVG_ID_POOL).toContain(uniqueSvgIds[0]);
       });
+    });
+
+    test('generates rainbow pieces based on probability', () => {
+      const { PIECE_TYPES } = require('../../constants/gameConfig');
+
+      // 100% rainbow probability
+      const pieces = getRandomPieces(10, 1.0);
+      const rainbowCount = pieces.filter(p => p.type === PIECE_TYPES.RAINBOW).length;
+      expect(rainbowCount).toBe(10);
+    });
+
+    test('generates no rainbow pieces with 0% probability', () => {
+      const { PIECE_TYPES } = require('../../constants/gameConfig');
+
+      const pieces = getRandomPieces(10, 0);
+      const rainbowCount = pieces.filter(p => p.type === PIECE_TYPES.RAINBOW).length;
+      expect(rainbowCount).toBe(0);
+    });
+
+    test('rainbow probability defaults to GAME_CONFIG.RAINBOW_PROBABILITY', () => {
+      // Should not throw when called without rainbow probability parameter
+      expect(() => getRandomPieces(3)).not.toThrow();
     });
   });
 
