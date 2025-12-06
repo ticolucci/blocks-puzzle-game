@@ -4,6 +4,3 @@
 jest.mock('expo-status-bar', () => ({
   StatusBar: 'StatusBar',
 }));
-
-// Silence the warning: Animated: `useNativeDriver` is not supported
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');

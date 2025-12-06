@@ -1,16 +1,22 @@
 {
-  "name": "BlocksPuzzleGame",
-  "displayName": "Blocks Puzzle Game",
-  "extra": {
-    "eas": {
-      "projectId": "6f213003-f0d8-4017-a776-4e1fe064a83c"
-    }
-  },
   "expo": {
+    "name": "Blocks Puzzle Game",
+    "slug": "blocks-puzzle-game",
+    "version": "1.0.0",
+    "jsEngine": "hermes",
+    "platforms": ["ios", "android", "web"],
+    "web": {
+      "bundler": "metro"
+    },
     "ios": {
       "bundleIdentifier": "com.ticolucci.blockpuzzle",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6f213003-f0d8-4017-a776-4e1fe064a83c"
       }
     }
   }
