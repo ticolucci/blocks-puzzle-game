@@ -9,7 +9,7 @@ function PieceSelector({
   onDragStart,
   onDragMove,
   onDragEnd,
-  selectorScale = 0.65,
+  selectorScale = GAME_CONFIG.SELECTOR_SCALE,
 }) {
   return (
     <View style={styles.container}>
@@ -71,13 +71,13 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   slot: {
-    padding: 10,
+    padding: 5,
     borderWidth: 2,
     borderColor: '#ddd',
     borderRadius: 8,
     backgroundColor: '#f9f9f9',
-    minWidth: (GAME_CONFIG.CELL_SIZE + 1) * 5,
-    minHeight: (GAME_CONFIG.CELL_SIZE + 1) * 5,
+    minWidth: (GAME_CONFIG.CELL_SIZE + 1) * 5 * GAME_CONFIG.SELECTOR_SCALE,
+    minHeight: (GAME_CONFIG.CELL_SIZE + 1) * 5 * GAME_CONFIG.SELECTOR_SCALE,
     marginHorizontal: 5,
     justifyContent: 'center',
     alignItems: 'center',

@@ -73,6 +73,14 @@ function DraggablePiece({
   // Store the initial centering offset applied when picking up the piece
   const initialOffset = useRef({ x: 0, y: 0 });
 
+  // Helper function to animate scale to a target value
+  const animateScaleTo = (targetValue, config = SPRING_CONFIG) => {
+    Animated.spring(scale, {
+      toValue: targetValue,
+      ...config,
+    }).start();
+  };
+
   // PanResponder for gesture handling
   const panResponder = useRef(
     PanResponder.create({
@@ -84,10 +92,7 @@ function DraggablePiece({
       onPanResponderGrant: (event) => {
         if (!isPlaced && !disabled) {
           // Animate scale to full size (1.0) when dragging starts
-          Animated.spring(scale, {
-            toValue: 1.0,
-            ...CENTER_ANIMATION_CONFIG,
-          }).start();
+          animateScaleTo(1.0, CENTER_ANIMATION_CONFIG);
 
           // Check if we have valid pre-measured layout (width > 0 means measurement completed)
           if (pieceLayout.current.width > 0) {
@@ -168,10 +173,7 @@ function DraggablePiece({
           initialOffset.current = { x: 0, y: 0 };
 
           // Animate scale back to selector size
-          Animated.spring(scale, {
-            toValue: selectorScale,
-            ...SPRING_CONFIG,
-          }).start();
+          animateScaleTo(selectorScale);
 
           // Return to origin with spring animation
           Animated.spring(pan, {
@@ -188,10 +190,7 @@ function DraggablePiece({
           initialOffset.current = { x: 0, y: 0 };
 
           // Animate scale back to selector size
-          Animated.spring(scale, {
-            toValue: selectorScale,
-            ...SPRING_CONFIG,
-          }).start();
+          animateScaleTo(selectorScale);
 
           // Return to origin with spring animation
           Animated.spring(pan, {
