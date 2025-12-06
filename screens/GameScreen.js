@@ -5,7 +5,7 @@ import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
 import GameOverModal from '../components/GameOverModal';
 import { GAME_CONFIG } from '../constants/gameConfig';
-import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced } from '../utils/pieceLibrary';
+import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced, createBombPiece } from '../utils/pieceLibrary';
 import { createEmptyGrid } from '../utils/gridHelpers';
 import { screenToGridPosition } from '../utils/gridCoordinates';
 import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/placementValidation';
@@ -20,6 +20,7 @@ export default function GameScreen() {
   const [gridState, setGridState] = useState(() => createEmptyGrid(GAME_CONFIG.BOARD_SIZE));
   const [boardLayout, setBoardLayout] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [redPiecesPlaced, setRedPiecesPlaced] = useState(0);
 
   const [dragState, setDragState] = useState(null);
   const [previewCells, setPreviewCells] = useState(null);
@@ -146,6 +147,20 @@ export default function GameScreen() {
         p.runtimeId === piece.runtimeId ? { ...p, isPlaced: true } : p
       )
     );
+
+    // Check if placed piece is red and track it
+    if (piece.color === '#FF0000') {
+      setRedPiecesPlaced(prevCount => {
+        const newCount = prevCount + 1;
+        // When 3 red pieces are placed, generate a bomb piece
+        if (newCount === 3) {
+          const bombPiece = createBombPiece();
+          setPieces(prevPieces => [...prevPieces, bombPiece]);
+          return 0; // Reset counter
+        }
+        return newCount;
+      });
+    }
 
     return true;
   }, [setGridState, setPieces, dragState]);

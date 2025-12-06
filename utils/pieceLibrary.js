@@ -120,3 +120,21 @@ export function initializeGamePieces(count) {
 export function areAllPiecesPlaced(pieces) {
   return pieces.every(piece => piece.isPlaced);
 }
+
+/**
+ * Creates a bomb piece
+ * @returns {Object} A bomb piece object
+ */
+export function createBombPiece() {
+  return {
+    runtimeId: nextRuntimeId++,
+    id: 'BOMB_1X1_0',
+    shapeName: 'BOMB',
+    shape: [[1]],
+    rotation: 0,
+    rotationIndex: 0,
+    color: '#808080', // Grey
+    type: 'bomb',
+    isPlaced: false,
+  };
+}
