@@ -1,5 +1,5 @@
 import { generateRotations, generatePieceLibrary, getPieceLibrary, getRandomPieces, areAllPiecesPlaced } from '../pieceLibrary';
-import { PIECE_SHAPES } from '../../constants/gameConfig';
+import { PIECE_SHAPES, COLOR_POOL } from '../../constants/gameConfig';
 
 describe('pieceLibrary', () => {
   describe('generateRotations', () => {
@@ -222,6 +222,23 @@ describe('pieceLibrary', () => {
       const runtimeIds = pieces.map(p => p.runtimeId);
       const uniqueIds = new Set(runtimeIds);
       expect(uniqueIds.size).toBe(library.length + 10);
+    });
+
+    test('each piece has a color property', () => {
+      const pieces = getRandomPieces(3);
+
+      pieces.forEach(piece => {
+        expect(piece).toHaveProperty('color');
+        expect(typeof piece.color).toBe('string');
+      });
+    });
+
+    test('piece colors are from the COLOR_POOL', () => {
+      const pieces = getRandomPieces(10);
+
+      pieces.forEach(piece => {
+        expect(COLOR_POOL).toContain(piece.color);
+      });
     });
   });
 
