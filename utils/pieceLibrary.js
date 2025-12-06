@@ -149,15 +149,15 @@ export function createBombPiece() {
 }
 
 /**
- * Creates a rainbow piece
+ * Creates a rainbow piece (5x1 horizontal line)
  * @returns {Object} A rainbow piece object
  */
 export function createRainbowPiece() {
   return {
     runtimeId: nextRuntimeId++,
-    id: 'RAINBOW_1X1_0',
+    id: 'RAINBOW_5X1_0',
     shapeName: 'RAINBOW',
-    shape: [[1]],
+    shape: [[1, 1, 1, 1, 1]],
     rotation: 0,
     rotationIndex: 0,
     color: 'rainbow',

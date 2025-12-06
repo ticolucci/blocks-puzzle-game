@@ -329,7 +329,7 @@ describe('placementValidation', () => {
     const { PIECE_TYPES } = require('../../constants/gameConfig');
 
     const rainbowPiece = {
-      shape: [[1]],
+      shape: [[1, 1, 1, 1, 1]],
       type: PIECE_TYPES.RAINBOW,
     };
 
@@ -366,7 +366,8 @@ describe('placementValidation', () => {
     });
 
     test('rainbow piece can be placed at edge of board', () => {
-      const result = canPlacePiece(rainbowPiece, 9, 9, emptyGrid, boardSize);
+      // 5x1 piece at row 9, col 5 (fits within 10x10 board: cols 5-9)
+      const result = canPlacePiece(rainbowPiece, 9, 5, emptyGrid, boardSize);
       expect(result.valid).toBe(true);
     });
 

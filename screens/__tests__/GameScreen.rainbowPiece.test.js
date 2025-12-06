@@ -43,7 +43,7 @@ describe('GameScreen - Rainbow Piece Feature', () => {
       // Verify rainbow piece properties
       expect(rainbowPiece.type).toBe(PIECE_TYPES.RAINBOW);
       expect(rainbowPiece.color).toBe('rainbow');
-      expect(rainbowPiece.shape).toEqual([[1]]);
+      expect(rainbowPiece.shape).toEqual([[1, 1, 1, 1, 1]]);
       expect(rainbowPiece.shapeName).toBe('RAINBOW');
     });
 
@@ -51,7 +51,7 @@ describe('GameScreen - Rainbow Piece Feature', () => {
       // Mock initializeGamePieces to return a rainbow piece
       const mockRainbowPiece = {
         runtimeId: 1,
-        shape: [[1]],
+        shape: [[1, 1, 1, 1, 1]],
         color: 'rainbow',
         type: PIECE_TYPES.RAINBOW,
         isPlaced: false,
@@ -71,7 +71,7 @@ describe('GameScreen - Rainbow Piece Feature', () => {
       // Mock a rainbow piece
       const mockRainbowPiece = {
         runtimeId: 1,
-        shape: [[1]],
+        shape: [[1, 1, 1, 1, 1]],
         color: 'rainbow',
         type: PIECE_TYPES.RAINBOW,
         isPlaced: false,
@@ -95,7 +95,7 @@ describe('GameScreen - Rainbow Piece Feature', () => {
     test('nyan cat animation does not appear before rainbow piece placement', async () => {
       const mockRainbowPiece = {
         runtimeId: 1,
-        shape: [[1]],
+        shape: [[1, 1, 1, 1, 1]],
         color: 'rainbow',
         type: PIECE_TYPES.RAINBOW,
         isPlaced: false,

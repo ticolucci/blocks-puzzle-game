@@ -326,11 +326,11 @@ describe('pieceLibrary', () => {
       expect(rainbowPiece.color).toBe('rainbow');
     });
 
-    test('rainbow piece has a single block shape', () => {
+    test('rainbow piece has a 5x1 line shape', () => {
       const { createRainbowPiece } = require('../pieceLibrary');
       const rainbowPiece = createRainbowPiece();
 
-      expect(rainbowPiece.shape).toEqual([[1]]);
+      expect(rainbowPiece.shape).toEqual([[1, 1, 1, 1, 1]]);
       expect(rainbowPiece.shapeName).toBe('RAINBOW');
     });
   });
