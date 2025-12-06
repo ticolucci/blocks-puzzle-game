@@ -1,5 +1,5 @@
 import { rotateMatrix } from './pieceRotation';
-import { PIECE_SHAPES, COLOR_POOL } from '../constants/gameConfig';
+import { PIECE_SHAPES, COLOR_POOL, PIECE_TYPES } from '../constants/gameConfig';
 import { getRandomElement } from './arrayHelpers';
 
 const ROTATION_ANGLES = [0, 90, 180, 270];
@@ -134,7 +134,7 @@ export function createBombPiece() {
     rotation: 0,
     rotationIndex: 0,
     color: '#808080', // Grey
-    type: 'bomb',
+    type: PIECE_TYPES.BOMB,
     isPlaced: false,
   };
 }

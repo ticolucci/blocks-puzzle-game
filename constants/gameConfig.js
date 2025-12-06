@@ -1,3 +1,8 @@
+export const PIECE_TYPES = {
+  NORMAL: 'normal',
+  BOMB: 'bomb',
+};
+
 export const GAME_CONFIG = {
   BOARD_SIZE: 10,
   CELL_SIZE: 29,
@@ -9,6 +14,7 @@ export const GAME_CONFIG = {
   MAX_HIGH_SCORES: 3,
   PLAYER_NAME_LENGTH: 3,
   BOMB_RADIUS: 2, // Radius for bomb piece clearing
+  RED_PIECES_FOR_BOMB: 3, // Number of red pieces needed to generate a bomb
 };
 
 export const COLORS = {

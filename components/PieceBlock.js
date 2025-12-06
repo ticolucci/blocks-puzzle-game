@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 
-export default function PieceBlock({ color, size = 20, isPressed = false }) {
+export default function PieceBlock({ color, size = 20, isPressed = false, icon = null }) {
   return (
     <View
       style={[
@@ -16,6 +16,13 @@ export default function PieceBlock({ color, size = 20, isPressed = false }) {
     >
       {/* Inner highlight for 3D effect */}
       <View style={styles.highlight} />
+
+      {/* Icon overlay (e.g., bomb emoji) */}
+      {icon && (
+        <View style={styles.iconContainer}>
+          <Text style={[styles.icon, { fontSize: size * 0.6 }]}>{icon}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -45,5 +52,17 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.7,
     transform: [{ scale: 0.95 }],
+  },
+  iconContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  icon: {
+    textAlign: 'center',
   },
 });

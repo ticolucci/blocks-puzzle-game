@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Pressable } from 'react-native';
 import PieceBlock from './PieceBlock';
-import { COLORS, GAME_CONFIG } from '../constants/gameConfig';
+import { COLORS, GAME_CONFIG, PIECE_TYPES } from '../constants/gameConfig';
 
 export default function Piece({
   shape,
   color = COLORS.CELL_FILLED,
   onPress,
   blockSize = GAME_CONFIG.CELL_SIZE,
+  type = PIECE_TYPES.NORMAL,
 }) {
   const [isPressed, setIsPressed] = useState(false);
 
@@ -29,6 +30,7 @@ export default function Piece({
                     color={color}
                     size={blockSize}
                     isPressed={isPressed}
+                    icon={type === PIECE_TYPES.BOMB ? '💣' : null}
                   />
                 </View>
               )}

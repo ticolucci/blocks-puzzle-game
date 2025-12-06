@@ -236,7 +236,7 @@ function DraggablePiece({
         ],
       }}
     >
-      <Piece shape={piece.shape} color={piece.color} />
+      <Piece shape={piece.shape} color={piece.color} type={piece.type} />
     </Animated.View>
   );
 }

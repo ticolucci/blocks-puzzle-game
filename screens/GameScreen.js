@@ -4,13 +4,13 @@ import GameBoard from '../components/GameBoard';
 import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
 import GameOverModal from '../components/GameOverModal';
-import { GAME_CONFIG } from '../constants/gameConfig';
+import { GAME_CONFIG, PIECE_TYPES } from '../constants/gameConfig';
 import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced, createBombPiece } from '../utils/pieceLibrary';
 import { createEmptyGrid } from '../utils/gridHelpers';
 import { screenToGridPosition } from '../utils/gridCoordinates';
 import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/placementValidation';
 import { getFilledRows, getFilledColumns, clearLines, calculateClearScore } from '../utils/gridClearing';
-import { clearBombRadius } from '../utils/bombClearing';
+import { clearBombRadius, getCellsInRadius } from '../utils/bombClearing';
 import { getMaxScore } from '../utils/highScores';
 import { centerToAnchor } from '../utils/pieceHelpers';
 
@@ -105,17 +105,29 @@ export default function GameScreen() {
       });
 
       // Check if piece is a bomb
-      if (piece.type === 'bomb') {
+      if (piece.type === PIECE_TYPES.BOMB) {
         // Get bomb position (first affected cell)
         const bombPosition = currentDragState.affectedCells[0];
 
-        // Clear cells in radius
-        const clearedGrid = clearBombRadius(newGrid, bombPosition.row, bombPosition.col, GAME_CONFIG.BOMB_RADIUS);
+        // Get cells to clear in radius
+        const cellsToAnimate = getCellsInRadius(
+          bombPosition.row,
+          bombPosition.col,
+          GAME_CONFIG.BOMB_RADIUS,
+          GAME_CONFIG.BOARD_SIZE,
+          newGrid,
+          true // Only animate filled cells
+        );
 
-        // Set grid immediately (no animation for now)
+        // Show clearing animation
+        setClearingCells(cellsToAnimate);
+
+        // After animation delay, clear the cells
         setTimeout(() => {
+          const clearedGrid = clearBombRadius(newGrid, bombPosition.row, bombPosition.col, GAME_CONFIG.BOMB_RADIUS);
           setGridState(clearedGrid);
-        }, 0);
+          setClearingCells(null);
+        }, 400); // 400ms animation duration
 
         return newGrid;
       }
@@ -169,8 +181,8 @@ export default function GameScreen() {
     if (piece.color === '#FF0000') {
       setRedPiecesPlaced(prevCount => {
         const newCount = prevCount + 1;
-        // When 3 red pieces are placed, generate a bomb piece
-        if (newCount === 3) {
+        // When required red pieces are placed, generate a bomb piece
+        if (newCount === GAME_CONFIG.RED_PIECES_FOR_BOMB) {
           const bombPiece = createBombPiece();
           setPieces(prevPieces => [...prevPieces, bombPiece]);
           return 0; // Reset counter
