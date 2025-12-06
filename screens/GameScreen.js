@@ -224,7 +224,7 @@ export default function GameScreen() {
     placePiece(piece);
   }, [dragState, placePiece]);
 
-  const handleRestart = useCallback(() => {
+  const handleRestart = useCallback(async () => {
     // Reset game state
     setScore(GAME_CONFIG.INITIAL_SCORE);
     setGridState(createEmptyGrid(GAME_CONFIG.BOARD_SIZE));
@@ -234,6 +234,10 @@ export default function GameScreen() {
     setPreviewCells(null);
     setPreviewValid(true);
     setClearingCells(null);
+
+    // Reload max score in case it was updated
+    const max = await getMaxScore();
+    setMaxScore(max);
   }, []);
 
   return (

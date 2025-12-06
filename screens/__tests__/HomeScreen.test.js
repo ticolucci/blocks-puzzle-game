@@ -10,6 +10,7 @@ jest.mock('../../utils/highScores', () => ({
 // Mock navigation
 const mockNavigation = {
   navigate: jest.fn(),
+  addListener: jest.fn(() => jest.fn()), // Return unsubscribe function
 };
 
 describe('HomeScreen', () => {
@@ -120,6 +121,49 @@ describe('HomeScreen', () => {
 
       await waitFor(() => {
         expect(getHighScores).toHaveBeenCalled();
+      });
+    });
+
+    test('reloads high scores when navigating back to screen', async () => {
+      // Initial scores
+      getHighScores.mockResolvedValue([
+        { name: 'AAA', score: 1000 },
+      ]);
+
+      // Create a mock navigation with addListener
+      let focusListener;
+      const mockNavigationWithListener = {
+        navigate: jest.fn(),
+        addListener: jest.fn((event, callback) => {
+          if (event === 'focus') {
+            focusListener = callback;
+          }
+          // Return unsubscribe function
+          return jest.fn();
+        }),
+      };
+
+      render(<HomeScreen navigation={mockNavigationWithListener} />);
+
+      // Wait for initial load
+      await waitFor(() => {
+        expect(getHighScores).toHaveBeenCalledTimes(1);
+      });
+
+      // Simulate new scores being saved elsewhere
+      getHighScores.mockResolvedValue([
+        { name: 'BBB', score: 2000 },
+        { name: 'AAA', score: 1000 },
+      ]);
+
+      // Trigger focus event (simulating navigation back)
+      if (focusListener) {
+        focusListener();
+      }
+
+      // getHighScores should be called again
+      await waitFor(() => {
+        expect(getHighScores).toHaveBeenCalledTimes(2);
       });
     });
   });

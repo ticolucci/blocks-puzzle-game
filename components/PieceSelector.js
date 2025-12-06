@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 10,
+    padding: 5,
   },
   slot: {
     padding: 5,
@@ -76,20 +76,20 @@ const styles = StyleSheet.create({
     borderColor: '#ddd',
     borderRadius: 8,
     backgroundColor: '#f9f9f9',
-    minWidth: (GAME_CONFIG.CELL_SIZE + 1) * 5 * GAME_CONFIG.SELECTOR_SCALE,
-    minHeight: (GAME_CONFIG.CELL_SIZE + 1) * 5 * GAME_CONFIG.SELECTOR_SCALE,
+    minWidth: (GAME_CONFIG.CELL_SIZE) * GAME_CONFIG.SELECTOR_SCALE,
+    minHeight: (GAME_CONFIG.CELL_SIZE)  * GAME_CONFIG.SELECTOR_SCALE,
     marginHorizontal: 5,
     justifyContent: 'center',
     alignItems: 'center',
   },
   placedSlot: {
-    borderColor: '#ccc',
+    borderColor: '#3e3030ff',
     backgroundColor: '#f5f5f5',
     opacity: 0.5,
   },
   emptySlot: {
-    width: 60,
-    height: 60,
+    width: (GAME_CONFIG.CELL_SIZE) * 2 * GAME_CONFIG.SELECTOR_SCALE,
+    height: (GAME_CONFIG.CELL_SIZE) * 2 * GAME_CONFIG.SELECTOR_SCALE,
   },
 });
 

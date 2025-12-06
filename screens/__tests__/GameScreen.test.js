@@ -598,6 +598,61 @@ describe('GameScreen', () => {
       });
     });
 
+    test('reloads max score after game restarts', async () => {
+      // Start with a max score of 1000
+      getMaxScore.mockResolvedValue(1000);
+      isHighScore.mockResolvedValue(false);
+
+      const createFullGrid = () => {
+        const grid = [];
+        for (let row = 0; row < 10; row++) {
+          const gridRow = [];
+          for (let col = 0; col < 10; col++) {
+            gridRow.push({ row, col, filled: true });
+          }
+          grid.push(gridRow);
+        }
+        return grid;
+      };
+
+      const gridHelpers = require('../../utils/gridHelpers');
+      const createEmptyGridSpy = jest.spyOn(gridHelpers, 'createEmptyGrid');
+      createEmptyGridSpy.mockReturnValueOnce(createFullGrid());
+
+      const mockPieces = [
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+      ];
+
+      jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
+
+      const { getByText, queryByText } = render(<GameScreen />);
+
+      // Wait for initial load
+      await waitFor(() => {
+        expect(getMaxScore).toHaveBeenCalledTimes(1);
+      });
+
+      // Wait for game over
+      await waitFor(() => {
+        expect(queryByText('Game Over')).toBeTruthy();
+      });
+
+      // Now simulate that a new high score was saved (2000)
+      getMaxScore.mockResolvedValue(2000);
+
+      // Press New Game/restart button
+      const newGameButton = getByText('New Game');
+      fireEvent.press(newGameButton);
+
+      // getMaxScore should be called again to reload the max score
+      await waitFor(() => {
+        expect(getMaxScore).toHaveBeenCalledTimes(2);
+      });
+
+      createEmptyGridSpy.mockRestore();
+      pieceLibrary.initializeGamePieces.mockRestore();
+    });
+
     test('displays max score of 0 when no high scores exist', async () => {
       getMaxScore.mockResolvedValue(0);
       const { getByText } = render(<GameScreen />);

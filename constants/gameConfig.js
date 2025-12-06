@@ -2,7 +2,7 @@ export const GAME_CONFIG = {
   BOARD_SIZE: 10,
   CELL_SIZE: 29,
   MAX_PIECE_SIZE: 5,
-  SELECTOR_SCALE: 0.65, // Scale factor for piece previews in selector (65% of gameplay size)
+  SELECTOR_SCALE: 0.65, // Scale factor for piece previews in selector (% of gameplay size)
   INITIAL_SCORE: 0,
   LINE_CLEAR_BASE_POINTS: 1000,
   HIGH_SCORES_KEY: 'high_scores',

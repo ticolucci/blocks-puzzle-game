@@ -10,6 +10,15 @@ export default function HomeScreen({ navigation }) {
     loadHighScores();
   }, []);
 
+  // Reload scores when screen comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadHighScores();
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   const loadHighScores = async () => {
     const scores = await getHighScores();
     setHighScores(scores);
