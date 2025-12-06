@@ -36,6 +36,7 @@ const CENTER_ANIMATION_CONFIG = {
  *   onDragMove={(p, x, y) => console.log('Dragging at', x, y)}
  *   onDragEnd={(p) => console.log('Finished dragging', p)}
  *   isPlaced={false}
+ *   selectorScale={0.65}
  * />
  *
  * @param {object} piece - The piece data with shape and metadata
@@ -44,6 +45,7 @@ const CENTER_ANIMATION_CONFIG = {
  * @param {function} onDragEnd - Callback when drag ends, receives piece
  * @param {boolean} isPlaced - Whether the piece has been placed (disables dragging)
  * @param {boolean} disabled - Whether dragging is disabled
+ * @param {number} selectorScale - Scale factor for piece preview in selector (0.0-1.0)
  * @param {string} testID - Test ID for testing purposes
  */
 function DraggablePiece({
@@ -53,10 +55,14 @@ function DraggablePiece({
   onDragEnd,
   isPlaced = false,
   disabled = false,
+  selectorScale = 1.0,
   testID,
 }) {
   // Animated value for smooth dragging
   const pan = useRef(new Animated.ValueXY()).current;
+
+  // Animated value for scale (starts at selectorScale, scales to 1.0 when dragging)
+  const scale = useRef(new Animated.Value(selectorScale)).current;
 
   // Ref to the View component for measuring
   const viewRef = useRef(null);
@@ -77,6 +83,12 @@ function DraggablePiece({
       // Gesture started
       onPanResponderGrant: (event) => {
         if (!isPlaced && !disabled) {
+          // Animate scale to full size (1.0) when dragging starts
+          Animated.spring(scale, {
+            toValue: 1.0,
+            ...CENTER_ANIMATION_CONFIG,
+          }).start();
+
           // Check if we have valid pre-measured layout (width > 0 means measurement completed)
           if (pieceLayout.current.width > 0) {
             // Fast path: use pre-measured layout
@@ -155,6 +167,12 @@ function DraggablePiece({
           // Reset initial offset for next drag
           initialOffset.current = { x: 0, y: 0 };
 
+          // Animate scale back to selector size
+          Animated.spring(scale, {
+            toValue: selectorScale,
+            ...SPRING_CONFIG,
+          }).start();
+
           // Return to origin with spring animation
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
@@ -169,6 +187,12 @@ function DraggablePiece({
           // Reset initial offset for next drag
           initialOffset.current = { x: 0, y: 0 };
 
+          // Animate scale back to selector size
+          Animated.spring(scale, {
+            toValue: selectorScale,
+            ...SPRING_CONFIG,
+          }).start();
+
           // Return to origin with spring animation
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
@@ -179,12 +203,18 @@ function DraggablePiece({
     })
   ).current;
 
-  // Reset position when piece is placed
+  // Reset position and scale when piece is placed
   useEffect(() => {
     if (isPlaced) {
       pan.setValue({ x: 0, y: 0 });
+      scale.setValue(selectorScale);
     }
-  }, [isPlaced, pan]);
+  }, [isPlaced, pan, scale, selectorScale]);
+
+  // Update scale when selectorScale prop changes
+  useEffect(() => {
+    scale.setValue(selectorScale);
+  }, [selectorScale, scale]);
 
   // Handler to measure piece position when layout changes
   const handleLayout = (event) => {
@@ -202,7 +232,11 @@ function DraggablePiece({
       onLayout={handleLayout}
       {...panResponder.panHandlers}
       style={{
-        transform: [{ translateX: pan.x }, { translateY: pan.y }],
+        transform: [
+          { translateX: pan.x },
+          { translateY: pan.y },
+          { scale: scale },
+        ],
       }}
     >
       <Piece shape={piece.shape} />
@@ -224,6 +258,7 @@ DraggablePiece.propTypes = {
   onDragEnd: PropTypes.func,
   isPlaced: PropTypes.bool,
   disabled: PropTypes.bool,
+  selectorScale: PropTypes.number,
   testID: PropTypes.string,
 };
 

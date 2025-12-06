@@ -9,6 +9,7 @@ function PieceSelector({
   onDragStart,
   onDragMove,
   onDragEnd,
+  selectorScale = 0.65,
 }) {
   return (
     <View style={styles.container}>
@@ -34,6 +35,7 @@ function PieceSelector({
                 onDragMove={onDragMove}
                 onDragEnd={onDragEnd}
                 isPlaced={isPlaced}
+                selectorScale={selectorScale}
               />
             ) : (
               <View style={styles.emptySlot} />
@@ -59,6 +61,7 @@ PieceSelector.propTypes = {
   onDragStart: PropTypes.func,
   onDragMove: PropTypes.func,
   onDragEnd: PropTypes.func,
+  selectorScale: PropTypes.number,
 };
 
 const styles = StyleSheet.create({

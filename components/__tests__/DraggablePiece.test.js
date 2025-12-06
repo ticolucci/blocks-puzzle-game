@@ -179,4 +179,52 @@ describe('DraggablePiece', () => {
     const blocks = getAllByTestId(/piece-block-/);
     expect(blocks).toHaveLength(5);
   });
+
+  test('renders piece at smaller scale in selector preview mode', () => {
+    const selectorScale = 0.65;
+    const { getByTestId } = render(
+      <DraggablePiece
+        piece={mockPiece}
+        onDragStart={mockHandlers.onDragStart}
+        onDragMove={mockHandlers.onDragMove}
+        onDragEnd={mockHandlers.onDragEnd}
+        isPlaced={false}
+        selectorScale={selectorScale}
+        testID="draggable-piece"
+      />
+    );
+
+    const draggablePiece = getByTestId('draggable-piece');
+
+    // Verify the piece is scaled down in selector
+    expect(draggablePiece.props.style).toEqual(
+      expect.objectContaining({
+        transform: expect.arrayContaining([
+          expect.objectContaining({ scale: selectorScale })
+        ])
+      })
+    );
+  });
+
+  test('accepts selectorScale prop and applies it initially', () => {
+    const customScale = 0.5;
+    const { getByTestId } = render(
+      <DraggablePiece
+        piece={mockPiece}
+        onDragStart={mockHandlers.onDragStart}
+        onDragMove={mockHandlers.onDragMove}
+        onDragEnd={mockHandlers.onDragEnd}
+        isPlaced={false}
+        selectorScale={customScale}
+        testID="draggable-piece"
+      />
+    );
+
+    const draggablePiece = getByTestId('draggable-piece');
+
+    // Verify the custom scale is applied
+    expect(draggablePiece.props.style.transform).toContainEqual(
+      expect.objectContaining({ scale: customScale })
+    );
+  });
 });
