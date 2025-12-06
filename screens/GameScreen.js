@@ -99,6 +99,7 @@ export default function GameScreen() {
       const newGrid = prevGrid.map(row => row.map(cell => ({ ...cell })));
       currentDragState.affectedCells.forEach(({ row, col }) => {
         newGrid[row][col].filled = true;
+        newGrid[row][col].color = piece.color;
       });
 
       // Check for filled rows and columns

@@ -20,6 +20,15 @@ export const COLORS = {
   PREVIEW_INVALID: 'rgba(244, 67, 54, 0.3)', // Red with 30% opacity
 };
 
+export const COLOR_POOL = [
+  '#FF0000', // red
+  '#0000FF', // blue
+  '#00FF00', // green
+  '#FFFF00', // yellow
+  '#800080', // purple
+  '#FFC0CB', // pink
+];
+
 export const PIECE_SHAPES = {
   SQUARE_2X2: [[1, 1], [1, 1]],
 

@@ -56,6 +56,7 @@ PieceSelector.propTypes = {
       shapeName: PropTypes.string,
       rotation: PropTypes.number,
       rotationIndex: PropTypes.number,
+      color: PropTypes.string,
     })
   ),
   onDragStart: PropTypes.func,

@@ -88,6 +88,7 @@ const GameBoard = forwardRef(({
               row={cell.row}
               col={cell.col}
               filled={cell.filled}
+              color={cell.color}
               isPreview={isPreviewCell(cell.row, cell.col)}
               previewValid={previewValid}
               isClearing={isClearingCell(cell.row, cell.col)}
@@ -110,6 +111,7 @@ GameBoard.propTypes = {
         row: PropTypes.number,
         col: PropTypes.number,
         filled: PropTypes.bool,
+        color: PropTypes.string,
       })
     )
   ),

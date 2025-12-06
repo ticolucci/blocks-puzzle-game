@@ -1,5 +1,6 @@
 import { rotateMatrix } from './pieceRotation';
-import { PIECE_SHAPES } from '../constants/gameConfig';
+import { PIECE_SHAPES, COLOR_POOL } from '../constants/gameConfig';
+import { getRandomElement } from './arrayHelpers';
 
 const ROTATION_ANGLES = [0, 90, 180, 270];
 
@@ -8,6 +9,14 @@ let cachedLibrary = null;
 
 // Counter for unique runtime IDs
 let nextRuntimeId = 0;
+
+/**
+ * Gets a random color from the COLOR_POOL
+ * @returns {string} A random color from the pool
+ */
+function getRandomColor() {
+  return getRandomElement(COLOR_POOL);
+}
 
 /**
  * Generates all 4 rotation variants for a given shape
@@ -72,6 +81,7 @@ export function getRandomPieces(count, shuffle = false) {
         ...libraryPiece,
         shape: libraryPiece.shape.map(row => [...row]), // Deep clone shape array
         runtimeId: nextRuntimeId++,
+        color: getRandomColor(),
       };
     });
   }
@@ -85,6 +95,7 @@ export function getRandomPieces(count, shuffle = false) {
       ...libraryPiece,
       shape: libraryPiece.shape.map(row => [...row]), // Deep clone shape array
       runtimeId: nextRuntimeId++,
+      color: getRandomColor(),
     };
   });
 }

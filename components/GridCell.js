@@ -7,14 +7,15 @@ import { GAME_CONFIG, COLORS } from '../constants/gameConfig';
  * Individual grid cell component with preview support
  * Memoized to prevent unnecessary re-renders during drag operations
  */
-function GridCell({ row, col, filled = false, isPreview = false, previewValid = true, isClearing = false }) {
+function GridCell({ row, col, filled = false, color = null, isPreview = false, previewValid = true, isClearing = false }) {
   return (
     <View
       testID={`grid-cell-${row}-${col}`}
       accessibilityState={{ selected: filled }}
       style={[
         styles.cell,
-        filled && styles.filled,
+        filled && !color && styles.filled,
+        filled && color && { backgroundColor: color },
         isPreview && previewValid && styles.previewValid,
         isPreview && !previewValid && styles.previewInvalid,
         isClearing && styles.clearing,
@@ -27,6 +28,7 @@ GridCell.propTypes = {
   row: PropTypes.number.isRequired,
   col: PropTypes.number.isRequired,
   filled: PropTypes.bool,
+  color: PropTypes.string,
   isPreview: PropTypes.bool,
   previewValid: PropTypes.bool,
   isClearing: PropTypes.bool,

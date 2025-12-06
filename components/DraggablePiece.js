@@ -236,7 +236,7 @@ function DraggablePiece({
         ],
       }}
     >
-      <Piece shape={piece.shape} />
+      <Piece shape={piece.shape} color={piece.color} />
     </Animated.View>
   );
 }
@@ -249,6 +249,7 @@ DraggablePiece.propTypes = {
     shapeName: PropTypes.string,
     rotation: PropTypes.number,
     rotationIndex: PropTypes.number,
+    color: PropTypes.string,
   }).isRequired,
   onDragStart: PropTypes.func,
   onDragMove: PropTypes.func,

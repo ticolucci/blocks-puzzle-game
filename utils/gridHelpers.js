@@ -1,7 +1,7 @@
 /**
  * Creates an empty grid data structure for the game board
  * @param {number} size - The size of the grid (e.g., 10 for 10x10)
- * @returns {Array<Array<{row: number, col: number, filled: boolean}>>} 2D array of grid cells
+ * @returns {Array<Array<{row: number, col: number, filled: boolean, color: string|null}>>} 2D array of grid cells
  */
 export const createEmptyGrid = (size) => {
   return Array.from({ length: size }, (_, row) =>
@@ -9,6 +9,7 @@ export const createEmptyGrid = (size) => {
       row,
       col,
       filled: false,
+      color: null,
     }))
   );
 };

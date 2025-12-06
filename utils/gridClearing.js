@@ -69,6 +69,7 @@ export const clearLines = (gridState, filledRows, filledColumns) => {
   filledRows.forEach(rowIndex => {
     for (let col = 0; col < newGrid[rowIndex].length; col++) {
       newGrid[rowIndex][col].filled = false;
+      newGrid[rowIndex][col].color = null;
     }
   });
 
@@ -76,6 +77,7 @@ export const clearLines = (gridState, filledRows, filledColumns) => {
   filledColumns.forEach(colIndex => {
     for (let row = 0; row < newGrid.length; row++) {
       newGrid[row][colIndex].filled = false;
+      newGrid[row][colIndex].color = null;
     }
   });
 
