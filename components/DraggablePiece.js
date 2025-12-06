@@ -17,8 +17,8 @@ const SPRING_CONFIG = {
 
 // Quick animation for centering piece under finger after pickup
 const CENTER_ANIMATION_CONFIG = {
-  friction: 12,
-  tension: 150,
+  friction: 40,
+  tension: 300,
   useNativeDriver: true,
 };
 
@@ -202,18 +202,16 @@ function DraggablePiece({
     })
   ).current;
 
-  // Reset position and scale when piece is placed
+  // Sync scale with selectorScale prop and reset position when placed
   useEffect(() => {
+    // Always keep scale in sync with selectorScale
+    scale.setValue(selectorScale);
+
+    // Reset position when piece is placed
     if (isPlaced) {
       pan.setValue({ x: 0, y: 0 });
-      scale.setValue(selectorScale);
     }
-  }, [isPlaced, pan, scale, selectorScale]);
-
-  // Update scale when selectorScale prop changes
-  useEffect(() => {
-    scale.setValue(selectorScale);
-  }, [selectorScale, scale]);
+  }, [isPlaced, selectorScale, pan, scale]);
 
   // Handler to measure piece position when layout changes
   const handleLayout = (event) => {
