@@ -46,8 +46,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
         shape: [[1]],
         id: 'SINGLE_1X1_0',
         shapeName: 'SINGLE_1X1',
-        rotation: 0,
-        rotationIndex: 0,
         isPlaced: false,
         color: '#FF0000', // Red color
       };
@@ -70,8 +68,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
         shape: [[1]],
         id: 'SINGLE_1X1_0',
         shapeName: 'SINGLE_1X1',
-        rotation: 0,
-        rotationIndex: 0,
         isPlaced: false,
         color: '#0000FF', // Blue color
       };
@@ -94,7 +90,7 @@ describe('GameScreen - Bomb Piece Feature', () => {
 
       // Verify bomb piece properties
       expect(bombPiece.type).toBe('bomb');
-      expect(bombPiece.color).toBe('#808080');
+      expect(bombPiece.svgRefs).toEqual(['solid-grey']);
       expect(bombPiece.shape).toEqual([[1]]);
       expect(bombPiece.shapeName).toBe('BOMB');
     });
@@ -106,8 +102,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
           shape: [[1]],
           id: 'SINGLE_1X1_0',
           shapeName: 'SINGLE_1X1',
-          rotation: 0,
-          rotationIndex: 0,
           isPlaced: false,
           color: '#FF0000', // Red
         },
@@ -116,8 +110,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
           shape: [[1]],
           id: 'SINGLE_1X1_0',
           shapeName: 'SINGLE_1X1',
-          rotation: 0,
-          rotationIndex: 0,
           isPlaced: false,
           color: '#FF0000', // Red
         },
@@ -126,8 +118,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
           shape: [[1]],
           id: 'SINGLE_1X1_0',
           shapeName: 'SINGLE_1X1',
-          rotation: 0,
-          rotationIndex: 0,
           isPlaced: false,
           color: '#0000FF', // Blue
         },
@@ -150,8 +140,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
         shape: [[1]], // 1x1 shape
         id: 'BOMB_1X1_0',
         shapeName: 'BOMB',
-        rotation: 0,
-        rotationIndex: 0,
         isPlaced: false,
         color: '#808080', // Grey
         type: 'bomb',
@@ -169,8 +157,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
         shape: [[1]],
         id: 'BOMB_1X1_0',
         shapeName: 'BOMB',
-        rotation: 0,
-        rotationIndex: 0,
         isPlaced: false,
         color: '#808080', // Grey
         type: 'bomb',
@@ -185,8 +171,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
         shape: [[1]],
         id: 'BOMB_1X1_0',
         shapeName: 'BOMB',
-        rotation: 0,
-        rotationIndex: 0,
         isPlaced: false,
         color: '#808080',
         type: 'bomb',
@@ -238,8 +222,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
         shape: [[1]],
         id: 'BOMB_1X1_0',
         shapeName: 'BOMB',
-        rotation: 0,
-        rotationIndex: 0,
         isPlaced: false,
         color: '#808080',
         type: 'bomb',

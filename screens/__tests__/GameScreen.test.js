@@ -84,9 +84,9 @@ describe('GameScreen', () => {
   test('initializes with 3 random pieces from library', () => {
     // Mock initializeGamePieces to verify it's called
     const mockPieces = [
-      { runtimeId: 1, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_0', shapeName: 'SQUARE_2X2', rotation: 0, rotationIndex: 0, isPlaced: false },
-      { runtimeId: 2, shape: [[1, 0], [1, 1]], id: 'L_SHAPE_2X2_0', shapeName: 'L_SHAPE_2X2', rotation: 0, rotationIndex: 0, isPlaced: false },
-      { runtimeId: 3, shape: [[1, 1, 1, 1, 1]], id: 'LINE_5_0', shapeName: 'LINE_5', rotation: 0, rotationIndex: 0, isPlaced: false },
+      { runtimeId: 1, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_0', shapeName: 'SQUARE_2X2', isPlaced: false },
+      { runtimeId: 2, shape: [[1, 0], [1, 1]], id: 'L_SHAPE_2X2_0', shapeName: 'L_SHAPE_2X2', isPlaced: false },
+      { runtimeId: 3, shape: [[1, 1, 1, 1, 1]], id: 'LINE_5_0', shapeName: 'LINE_5', isPlaced: false },
     ];
 
     const spy = jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
@@ -101,9 +101,9 @@ describe('GameScreen', () => {
 
   test('pieces have unique runtime IDs from library', () => {
     const mockPieces = [
-      { runtimeId: 10, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_0', shapeName: 'SQUARE_2X2', rotation: 0, rotationIndex: 0, isPlaced: false },
-      { runtimeId: 11, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_90', shapeName: 'SQUARE_2X2', rotation: 90, rotationIndex: 1, isPlaced: false },
-      { runtimeId: 12, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_180', shapeName: 'SQUARE_2X2', rotation: 180, rotationIndex: 2, isPlaced: false },
+      { runtimeId: 10, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_0', shapeName: 'SQUARE_2X2', isPlaced: false },
+      { runtimeId: 11, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_90', shapeName: 'SQUARE_2X2', isPlaced: false },
+      { runtimeId: 12, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_180', shapeName: 'SQUARE_2X2', isPlaced: false },
     ];
 
     jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
@@ -162,16 +162,16 @@ describe('GameScreen', () => {
     test('generates new pieces when all three pieces are placed', () => {
       // Mock initial pieces with isPlaced: true to simulate all pieces placed
       const initialPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
-        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
-        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
       ];
 
       // Mock new pieces after regeneration
       const newPieces = [
-        { runtimeId: 100, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 101, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 102, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 100, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
+        { runtimeId: 101, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
+        { runtimeId: 102, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
       ];
 
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
@@ -186,15 +186,15 @@ describe('GameScreen', () => {
 
     test('new pieces have isPlaced set to false', () => {
       const initialPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
-        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
-        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
       ];
 
       const newPieces = [
-        { runtimeId: 200, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 201, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 202, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 200, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
+        { runtimeId: 201, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
+        { runtimeId: 202, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
       ];
 
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
@@ -211,15 +211,15 @@ describe('GameScreen', () => {
 
     test('new pieces have unique runtime IDs different from previous pieces', () => {
       const initialPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
-        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
-        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
       ];
 
       const newPieces = [
-        { runtimeId: 300, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 301, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 302, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 300, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
+        { runtimeId: 301, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
+        { runtimeId: 302, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
       ];
 
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
@@ -241,9 +241,9 @@ describe('GameScreen', () => {
 
     test('does not generate new pieces when only one piece is placed', () => {
       const initialPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
-        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
       ];
 
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
@@ -257,9 +257,9 @@ describe('GameScreen', () => {
 
     test('does not generate new pieces when only two pieces are placed', () => {
       const initialPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
-        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: true },
-        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
+        { runtimeId: 2, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: true },
+        { runtimeId: 3, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
       ];
 
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(initialPieces);
@@ -302,9 +302,9 @@ describe('GameScreen', () => {
 
       // Mock pieces - none can fit on a full board
       const mockPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 2, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_0', shapeName: 'SQUARE_2X2', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 3, shape: [[1, 1, 1]], id: 'LINE_3_0', shapeName: 'LINE_3', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
+        { runtimeId: 2, shape: [[1, 1], [1, 1]], id: 'SQUARE_2X2_0', shapeName: 'SQUARE_2X2', isPlaced: false },
+        { runtimeId: 3, shape: [[1, 1, 1]], id: 'LINE_3_0', shapeName: 'LINE_3', isPlaced: false },
       ];
 
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
@@ -339,9 +339,9 @@ describe('GameScreen', () => {
       jest.spyOn(gridHelpers, 'createEmptyGrid').mockReturnValue(createFullGrid());
 
       const mockPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 2, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 3, shape: [[1, 1, 1]], id: 'LINE_3_0', shapeName: 'LINE_3', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
+        { runtimeId: 2, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
+        { runtimeId: 3, shape: [[1, 1, 1]], id: 'LINE_3_0', shapeName: 'LINE_3', isPlaced: false },
       ];
 
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
@@ -387,9 +387,9 @@ describe('GameScreen', () => {
       createEmptyGridSpy.mockReturnValueOnce(createFullGrid()); // First call returns full grid
 
       const mockPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 2, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', rotation: 0, rotationIndex: 0, isPlaced: false },
-        { runtimeId: 3, shape: [[1, 1, 1]], id: 'LINE_3_0', shapeName: 'LINE_3', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
+        { runtimeId: 2, shape: [[1, 1]], id: 'LINE_2_0', shapeName: 'LINE_2', isPlaced: false },
+        { runtimeId: 3, shape: [[1, 1, 1]], id: 'LINE_3_0', shapeName: 'LINE_3', isPlaced: false },
       ];
 
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
@@ -445,7 +445,7 @@ describe('GameScreen', () => {
 
       // Mock a single piece that will complete row 5
       const mockPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
       ];
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
 
@@ -469,7 +469,7 @@ describe('GameScreen', () => {
       jest.spyOn(gridHelpers, 'createEmptyGrid').mockReturnValue(createGridWithFilledCells(filledCells));
 
       const mockPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
       ];
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
 
@@ -496,7 +496,7 @@ describe('GameScreen', () => {
       jest.spyOn(gridHelpers, 'createEmptyGrid').mockReturnValue(createGridWithFilledCells(filledCells));
 
       const mockPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
       ];
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
 
@@ -533,7 +533,7 @@ describe('GameScreen', () => {
       jest.spyOn(gridHelpers, 'createEmptyGrid').mockReturnValue(createGridWithFilledCells(filledCells));
 
       const mockPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
       ];
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
 
@@ -562,7 +562,7 @@ describe('GameScreen', () => {
 
       // Mock a 2-cell vertical piece that completes both rows
       const mockPieces = [
-        { runtimeId: 1, shape: [[1], [1], [1]], id: 'LINE_3_90', shapeName: 'LINE_3', rotation: 90, rotationIndex: 1, isPlaced: false },
+        { runtimeId: 1, shape: [[1], [1], [1]], id: 'LINE_3_90', shapeName: 'LINE_3', isPlaced: false },
       ];
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);
 
@@ -620,7 +620,7 @@ describe('GameScreen', () => {
       createEmptyGridSpy.mockReturnValueOnce(createFullGrid());
 
       const mockPieces = [
-        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', rotation: 0, rotationIndex: 0, isPlaced: false },
+        { runtimeId: 1, shape: [[1]], id: 'SINGLE_1X1_0', shapeName: 'SINGLE_1X1', isPlaced: false },
       ];
 
       jest.spyOn(pieceLibrary, 'initializeGamePieces').mockReturnValue(mockPieces);

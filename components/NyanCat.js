@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { View, Animated, StyleSheet, Text } from 'react-native';
+import { View, Animated, StyleSheet, Text, Image } from 'react-native';
 import { GAME_CONFIG, RAINBOW_COLORS } from '../constants/gameConfig';
 
 /**
@@ -37,12 +37,12 @@ export default function NyanCat({ visible }) {
           },
         ]}
       >
-        <Text style={styles.catEmoji}>😺</Text>
         <View style={styles.rainbow}>
           {RAINBOW_COLORS.map((color, index) => (
             <View key={index} style={[styles.rainbowStripe, { backgroundColor: color }]} />
           ))}
         </View>
+        <Image style={styles.cat} source={require('../assets/nyan-cat.gif')} />
       </Animated.View>
     </View>
   );
@@ -60,17 +60,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
-  catEmoji: {
-    fontSize: 48,
+  cat: {
     zIndex: 2,
   },
   rainbow: {
     flexDirection: 'column',
-    marginLeft: -10,
     zIndex: 1,
   },
   rainbowStripe: {
-    width: 100,
-    height: 4,
+    width: 50,
+    height: 10,
   },
 });

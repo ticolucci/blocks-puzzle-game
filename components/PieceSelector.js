@@ -54,8 +54,6 @@ PieceSelector.propTypes = {
       runtimeId: PropTypes.number,
       shape: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
       shapeName: PropTypes.string,
-      rotation: PropTypes.number,
-      rotationIndex: PropTypes.number,
       color: PropTypes.string,
     })
   ),

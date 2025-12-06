@@ -247,8 +247,6 @@ DraggablePiece.propTypes = {
     id: PropTypes.string,
     shape: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.number)).isRequired,
     shapeName: PropTypes.string,
-    rotation: PropTypes.number,
-    rotationIndex: PropTypes.number,
     color: PropTypes.string,
   }).isRequired,
   onDragStart: PropTypes.func,

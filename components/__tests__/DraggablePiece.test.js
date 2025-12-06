@@ -11,8 +11,7 @@ describe('DraggablePiece', () => {
       [1, 1],
       [1, 1],
     ],
-    rotation: 0,
-    rotationIndex: 0,
+    svgRefs: ['solid-red', 'solid-red', 'solid-red', 'solid-red'],
   };
 
   const mockHandlers = {
@@ -163,6 +162,7 @@ describe('DraggablePiece', () => {
     const linePiece = {
       runtimeId: 2,
       shape: [[1, 1, 1, 1, 1]],
+      svgRefs: ['solid-blue', 'solid-blue', 'solid-blue', 'solid-blue', 'solid-blue'],
     };
 
     const { getAllByTestId } = render(

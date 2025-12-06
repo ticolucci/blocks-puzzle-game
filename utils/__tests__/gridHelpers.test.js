@@ -12,7 +12,7 @@ describe('gridHelpers', () => {
       });
     });
 
-    test('each cell has row, col, filled, and color properties', () => {
+    test('each cell has row, col, filled, and svgRef properties', () => {
       const grid = createEmptyGrid(5);
 
       grid.forEach((row, rowIndex) => {
@@ -20,18 +20,18 @@ describe('gridHelpers', () => {
           expect(cell).toHaveProperty('row', rowIndex);
           expect(cell).toHaveProperty('col', colIndex);
           expect(cell).toHaveProperty('filled', false);
-          expect(cell).toHaveProperty('color', null);
+          expect(cell).toHaveProperty('svgRef', null);
         });
       });
     });
 
-    test('all cells start with filled as false and color as null', () => {
+    test('all cells start with filled as false and svgRef as null', () => {
       const grid = createEmptyGrid(3);
 
       grid.forEach(row => {
         row.forEach(cell => {
           expect(cell.filled).toBe(false);
-          expect(cell.color).toBe(null);
+          expect(cell.svgRef).toBe(null);
         });
       });
     });

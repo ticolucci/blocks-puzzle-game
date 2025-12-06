@@ -42,7 +42,13 @@ describe('GameScreen - Rainbow Piece Feature', () => {
 
       // Verify rainbow piece properties
       expect(rainbowPiece.type).toBe(PIECE_TYPES.RAINBOW);
-      expect(rainbowPiece.color).toBe('rainbow');
+      expect(rainbowPiece.svgRefs).toEqual([
+        'rainbow-red',
+        'rainbow-orange',
+        'rainbow-yellow',
+        'rainbow-green',
+        'rainbow-blue',
+      ]);
       expect(rainbowPiece.shape).toEqual([[1, 1, 1, 1, 1]]);
       expect(rainbowPiece.shapeName).toBe('RAINBOW');
     });
@@ -52,7 +58,7 @@ describe('GameScreen - Rainbow Piece Feature', () => {
       const mockRainbowPiece = {
         runtimeId: 1,
         shape: [[1, 1, 1, 1, 1]],
-        color: 'rainbow',
+        svgRefs: ['rainbow-red', 'rainbow-orange', 'rainbow-yellow', 'rainbow-green', 'rainbow-blue'],
         type: PIECE_TYPES.RAINBOW,
         isPlaced: false,
       };

@@ -1,10 +1,191 @@
-import { rotateMatrix } from './pieceRotation';
-import { PIECE_SHAPES, PIECE_TYPES, GAME_CONFIG, SVG_ID_POOL } from '../constants/gameConfig';
+import { PIECE_TYPES, GAME_CONFIG, SVG_ID_POOL } from '../constants/gameConfig';
 import { getRandomElement } from './arrayHelpers';
 
-const ROTATION_ANGLES = [0, 90, 180, 270];
+// Hardcoded piece library with all rotations pre-calculated
+const PIECE_LIBRARY = [
+  {
+    "id": "L_LEFT_0",
+    "shapeName": "L_LEFT",
+    "shape": [[1, 0, 0], [1, 1, 1]],
+  },
+  {
+    "id": "L_LEFT_90",
+    "shapeName": "L_LEFT",
+    "shape": [[1, 1], [1, 0], [1, 0]],
+  },
+  {
+    "id": "L_RIGHT_0",
+    "shapeName": "L_RIGHT",
+    "shape": [[0, 0, 1], [1, 1, 1]],
+  },
+  {
+    "id": "L_RIGHT_90",
+    "shapeName": "L_RIGHT",
+    "shape": [[1, 0], [1, 0], [1, 1]],
+  },
+  {
+    "id": "L_SHAPE_2X2_0",
+    "shapeName": "L_SHAPE_2X2",
+    "shape": [[1, 0], [0, 1]],
+  },
+  {
+    "id": "L_SHAPE_2X2_90",
+    "shapeName": "L_SHAPE_2X2",
+    "shape": [[0, 1], [1, 0]],
+  },
+  {
+    "id": "LINE_2_0",
+    "shapeName": "LINE_2",
+    "shape": [[1, 1]],
+  },
+  {
+    "id": "LINE_2_90",
+    "shapeName": "LINE_2",
+    "shape": [[1], [1]],
+  },
+  {
+    "id": "LINE_4_0",
+    "shapeName": "LINE_4",
+    "shape": [[1, 1, 1, 1]],
+  },
+  {
+    "id": "LINE_4_90",
+    "shapeName": "LINE_4",
+    "shape": [[1], [1], [1], [1]],
+  },
+  {
+    "id": "LINE_4_180",
+    "shapeName": "LINE_4",
+    "shape": [[1, 1, 1, 1]],
+  },
+  {
+    "id": "LINE_5_0",
+    "shapeName": "LINE_5",
+    "shape": [[1, 1, 1, 1, 1]],
+  },
+  {
+    "id": "LINE_5_90",
+    "shapeName": "LINE_5",
+    "shape": [[1], [1], [1], [1], [1]],
+  },
+  {
+    "id": "LINE_5_180",
+    "shapeName": "LINE_5",
+    "shape": [[1, 1, 1, 1, 1]],
+  },
+  {
+    "id": "RECT_3X2_0",
+    "shapeName": "RECT_3X2",
+    "shape": [[1, 1], [1, 1], [1, 1]],
+  },
+  {
+    "id": "RECT_3X2_90",
+    "shapeName": "RECT_3X2",
+    "shape": [[1, 1, 1], [1, 1, 1]],
+  },
+  {
+    "id": "RECT_3X2_180",
+    "shapeName": "RECT_3X2",
+    "shape": [[1, 1], [1, 1], [1, 1]],
+  },
+  {
+    "id": "RECT_3X2_270",
+    "shapeName": "RECT_3X2",
+    "shape": [[1, 1, 1], [1, 1, 1]],
+  },
+  {
+    "id": "SINGLE_0",
+    "shapeName": "SINGLE",
+    "shape": [[1]],
+  },
+  {
+    "id": "SINGLE_90",
+    "shapeName": "SINGLE",
+    "shape": [[1]],
+  },
+  {
+    "id": "SQUARE_2X2_0",
+    "shapeName": "SQUARE_2X2",
+    "shape": [[1, 1], [1, 1]],
+  },
+  {
+    "id": "SQUARE_2X2_90",
+    "shapeName": "SQUARE_2X2",
+    "shape": [[1, 1], [1, 1]],
+  },
+  {
+    "id": "SQUARE_2X2_180",
+    "shapeName": "SQUARE_2X2",
+    "shape": [[1, 1], [1, 1]],
+  },
+  {
+    "id": "SQUARE_2X2_270",
+    "shapeName": "SQUARE_2X2",
+    "shape": [[1, 1], [1, 1]],
+  },
+  {
+    "id": "SQUARE_3X3_0",
+    "shapeName": "SQUARE_3X3",
+    "shape": [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+  },
+  {
+    "id": "SQUARE_3X3_90",
+    "shapeName": "SQUARE_3X3",
+    "shape": [[1, 1, 1], [1, 1, 1], [1, 1, 1]],
+  },
+  {
+    "id": "T_SHAPE_0",
+    "shapeName": "T_SHAPE",
+    "shape": [[0, 1, 0], [1, 1, 1]],
+  },
+  {
+    "id": "T_SHAPE_90",
+    "shapeName": "T_SHAPE",
+    "shape": [[1, 0], [1, 1], [1, 0]],
+  },
+  {
+    "id": "T_SHAPE_180",
+    "shapeName": "T_SHAPE",
+    "shape": [[1, 1, 1], [0, 1, 0]],
+  },
+  {
+    "id": "T_SHAPE_270",
+    "shapeName": "T_SHAPE",
+    "shape": [[0, 1], [1, 1], [0, 1]],
+  },
+  {
+    "id": "Z_LEFT_0",
+    "shapeName": "Z_LEFT",
+    "shape": [[1, 0], [1, 1], [0, 1]],
+  },
+  {
+    "id": "Z_LEFT_270",
+    "shapeName": "Z_LEFT",
+    "shape": [[0, 1, 1], [1, 1, 0]],
+  },
+  {
+    "id": "Z_RIGHT_0",
+    "shapeName": "Z_RIGHT",
+    "shape": [[0, 1], [1, 1], [1, 0]],
+  },
+  {
+    "id": "Z_RIGHT_90",
+    "shapeName": "Z_RIGHT",
+    "shape": [[1, 1, 0], [0, 1, 1]],
+  },
+  {
+    "id": "Z_RIGHT_180",
+    "shapeName": "Z_RIGHT",
+    "shape": [[0, 1], [1, 1], [1, 0]],
+  },
+  {
+    "id": "Z_RIGHT_270",
+    "shapeName": "Z_RIGHT",
+    "shape": [[1, 1, 0], [0, 1, 1]],
+  }
+];
 
-// Cache for the piece library
+// Cache for the piece library (not used with hardcoded library, but kept for API compatibility)
 let cachedLibrary = null;
 
 // Counter for unique runtime IDs
@@ -38,74 +219,20 @@ function generateSvgRefsForShape(shape, svgId) {
 }
 
 /**
- * Generates all 4 rotation variants for a given shape
- * @param {string} shapeName - Name of the shape
- * @param {number[][]} shape - 2D array representing the shape
- * @returns {Array} Array of 4 pieces with rotation metadata
- */
-export function generateRotations(shapeName, shape) {
-  return ROTATION_ANGLES.map((degrees, index) => ({
-    id: `${shapeName}_${degrees}`,
-    shapeName,
-    shape: rotateMatrix(shape, degrees),
-    rotation: degrees,
-    rotationIndex: index,
-  }));
-}
-
-/**
- * Generates the complete piece library with all shapes and rotations
- * @returns {Array} Array of all pieces (13 shapes × 4 rotations = 52 pieces)
- */
-export function generatePieceLibrary() {
-  const library = Object.entries(PIECE_SHAPES).flatMap(([shapeName, shape]) =>
-    generateRotations(shapeName, shape)
-  );
-
-  // Sort by shape name, then by rotation for predictable ordering
-  return library.sort((a, b) => {
-    if (a.shapeName !== b.shapeName) {
-      return a.shapeName.localeCompare(b.shapeName);
-    }
-    return a.rotation - b.rotation;
-  });
-}
-
-/**
- * Gets the piece library with lazy initialization and caching
- * @returns {Array} Cached piece library
+ * Gets the piece library (hardcoded for performance)
+ * @returns {Array} Piece library
  */
 export function getPieceLibrary() {
-  if (!cachedLibrary) {
-    cachedLibrary = generatePieceLibrary();
-  }
-  return cachedLibrary;
+  return PIECE_LIBRARY;
 }
 
 /**
  * Gets N random pieces from the library with unique runtime IDs
  * @param {number} count - Number of random pieces to select
- * @param {boolean} shuffle - If true, shuffle library once; if false, pick randomly (default: false)
  * @returns {Array} Array of random pieces with runtime IDs
  */
-export function getRandomPieces(count, shuffle = false) {
+export function getRandomPieces(count) {
   const library = getPieceLibrary();
-
-  if (shuffle) {
-    // Shuffle the entire library once, then take first N pieces (repeating if needed)
-    const shuffled = [...library].sort(() => Math.random() - 0.5);
-    return Array.from({ length: count }, (_, i) => {
-      const libraryPiece = shuffled[i % shuffled.length];
-      const svgId = getRandomSvgId();
-      return {
-        ...libraryPiece,
-        shape: libraryPiece.shape.map(row => [...row]), // Deep clone shape array
-        runtimeId: nextRuntimeId++,
-        svgRefs: generateSvgRefsForShape(libraryPiece.shape, svgId),
-        type: PIECE_TYPES.NORMAL,
-      };
-    });
-  }
 
   // Pick randomly for each piece
   return Array.from({ length: count }, () => {
@@ -163,8 +290,6 @@ export function createBombPiece() {
     id: 'BOMB_1X1_0',
     shapeName: 'BOMB',
     shape: [[1]],
-    rotation: 0,
-    rotationIndex: 0,
     svgRefs: [SVG_IDS.SOLID_GREY],
     type: PIECE_TYPES.BOMB,
   };
@@ -181,8 +306,6 @@ export function createRainbowPiece() {
     id: 'RAINBOW_5X1_0',
     shapeName: 'RAINBOW',
     shape: [[1, 1, 1, 1, 1]],
-    rotation: 0,
-    rotationIndex: 0,
     svgRefs: [...RAINBOW_SVG_SEQUENCE],
     type: PIECE_TYPES.RAINBOW,
   };
