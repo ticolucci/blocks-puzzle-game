@@ -57,6 +57,46 @@ export const RAINBOW_COLORS = [
   '#4B0082', // Indigo
 ];
 
+// SVG IDs for piece rendering
+export const SVG_IDS = {
+  // Normal piece colors
+  SOLID_RED: 'solid-red',
+  SOLID_BLUE: 'solid-blue',
+  SOLID_GREEN: 'solid-green',
+  SOLID_YELLOW: 'solid-yellow',
+  SOLID_PURPLE: 'solid-purple',
+  SOLID_PINK: 'solid-pink',
+
+  // Rainbow colors
+  RAINBOW_RED: 'rainbow-red',
+  RAINBOW_ORANGE: 'rainbow-orange',
+  RAINBOW_YELLOW: 'rainbow-yellow',
+  RAINBOW_GREEN: 'rainbow-green',
+  RAINBOW_BLUE: 'rainbow-blue',
+
+  // Special pieces
+  SOLID_GREY: 'solid-grey',
+};
+
+// Pool of SVG IDs for random piece generation
+export const SVG_ID_POOL = [
+  SVG_IDS.SOLID_RED,
+  SVG_IDS.SOLID_BLUE,
+  SVG_IDS.SOLID_GREEN,
+  SVG_IDS.SOLID_YELLOW,
+  SVG_IDS.SOLID_PURPLE,
+  SVG_IDS.SOLID_PINK,
+];
+
+// Rainbow piece SVG sequence (5x1 piece uses these in order)
+export const RAINBOW_SVG_SEQUENCE = [
+  SVG_IDS.RAINBOW_RED,
+  SVG_IDS.RAINBOW_ORANGE,
+  SVG_IDS.RAINBOW_YELLOW,
+  SVG_IDS.RAINBOW_GREEN,
+  SVG_IDS.RAINBOW_BLUE,
+];
+
 export const PIECE_SHAPES = {
   SQUARE_2X2: [[1, 1], [1, 1]],
 

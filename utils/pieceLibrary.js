@@ -1,5 +1,5 @@
 import { rotateMatrix } from './pieceRotation';
-import { PIECE_SHAPES, COLOR_POOL, PIECE_TYPES, GAME_CONFIG } from '../constants/gameConfig';
+import { PIECE_SHAPES, PIECE_TYPES, GAME_CONFIG, SVG_ID_POOL } from '../constants/gameConfig';
 import { getRandomElement } from './arrayHelpers';
 
 const ROTATION_ANGLES = [0, 90, 180, 270];
@@ -11,11 +11,30 @@ let cachedLibrary = null;
 let nextRuntimeId = 0;
 
 /**
- * Gets a random color from the COLOR_POOL
- * @returns {string} A random color from the pool
+ * Gets a random SVG ID from the SVG_ID_POOL
+ * @returns {string} A random SVG ID
  */
-function getRandomColor() {
-  return getRandomElement(COLOR_POOL);
+function getRandomSvgId() {
+  return getRandomElement(SVG_ID_POOL);
+}
+
+/**
+ * Generates SVG reference array for a piece shape
+ * For normal pieces: all cells get the same SVG ID
+ * @param {number[][]} shape - 2D shape array
+ * @param {string} svgId - SVG ID to use for all cells
+ * @returns {string[]} Array of SVG IDs (one per filled cell)
+ */
+function generateSvgRefsForShape(shape, svgId) {
+  const svgRefs = [];
+  shape.forEach(row => {
+    row.forEach(cell => {
+      if (cell === 1) {
+        svgRefs.push(svgId);
+      }
+    });
+  });
+  return svgRefs;
 }
 
 /**
@@ -77,11 +96,12 @@ export function getRandomPieces(count, shuffle = false) {
     const shuffled = [...library].sort(() => Math.random() - 0.5);
     return Array.from({ length: count }, (_, i) => {
       const libraryPiece = shuffled[i % shuffled.length];
+      const svgId = getRandomSvgId();
       return {
         ...libraryPiece,
         shape: libraryPiece.shape.map(row => [...row]), // Deep clone shape array
         runtimeId: nextRuntimeId++,
-        color: getRandomColor(),
+        svgRefs: generateSvgRefsForShape(libraryPiece.shape, svgId),
         type: PIECE_TYPES.NORMAL,
       };
     });
@@ -91,12 +111,13 @@ export function getRandomPieces(count, shuffle = false) {
   return Array.from({ length: count }, () => {
     const randomIndex = Math.floor(Math.random() * library.length);
     const libraryPiece = library[randomIndex];
+    const svgId = getRandomSvgId();
 
     return {
       ...libraryPiece,
       shape: libraryPiece.shape.map(row => [...row]), // Deep clone shape array
       runtimeId: nextRuntimeId++,
-      color: getRandomColor(),
+      svgRefs: generateSvgRefsForShape(libraryPiece.shape, svgId),
       type: PIECE_TYPES.NORMAL,
     };
   });
@@ -136,6 +157,7 @@ export function areAllPiecesPlaced(pieces) {
  * @returns {Object} A bomb piece object
  */
 export function createBombPiece() {
+  const { SVG_IDS } = require('../constants/gameConfig');
   return {
     runtimeId: nextRuntimeId++,
     id: 'BOMB_1X1_0',
@@ -143,7 +165,7 @@ export function createBombPiece() {
     shape: [[1]],
     rotation: 0,
     rotationIndex: 0,
-    color: '#808080', // Grey
+    svgRefs: [SVG_IDS.SOLID_GREY],
     type: PIECE_TYPES.BOMB,
   };
 }
@@ -153,6 +175,7 @@ export function createBombPiece() {
  * @returns {Object} A rainbow piece object
  */
 export function createRainbowPiece() {
+  const { RAINBOW_SVG_SEQUENCE } = require('../constants/gameConfig');
   return {
     runtimeId: nextRuntimeId++,
     id: 'RAINBOW_5X1_0',
@@ -160,7 +183,7 @@ export function createRainbowPiece() {
     shape: [[1, 1, 1, 1, 1]],
     rotation: 0,
     rotationIndex: 0,
-    color: 'rainbow',
+    svgRefs: [...RAINBOW_SVG_SEQUENCE],
     type: PIECE_TYPES.RAINBOW,
   };
 }

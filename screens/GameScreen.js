@@ -5,7 +5,7 @@ import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
 import GameOverModal from '../components/GameOverModal';
 import NyanCat from '../components/NyanCat';
-import { GAME_CONFIG, PIECE_TYPES } from '../constants/gameConfig';
+import { GAME_CONFIG, PIECE_TYPES, SVG_IDS } from '../constants/gameConfig';
 import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced, createBombPiece } from '../utils/pieceLibrary';
 import { createEmptyGrid } from '../utils/gridHelpers';
 import { screenToGridPosition } from '../utils/gridCoordinates';
@@ -117,9 +117,9 @@ export default function GameScreen() {
     // Update grid state with placed piece
     setGridState(prevGrid => {
       const newGrid = prevGrid.map(row => row.map(cell => ({ ...cell })));
-      currentDragState.affectedCells.forEach(({ row, col }) => {
+      currentDragState.affectedCells.forEach(({ row, col }, index) => {
         newGrid[row][col].filled = true;
-        newGrid[row][col].color = piece.color;
+        newGrid[row][col].svgRef = piece.svgRefs[index];
       });
 
       // Check if piece is a bomb
@@ -203,8 +203,9 @@ export default function GameScreen() {
       }, GAME_CONFIG.NYAN_CAT_ANIMATION_DURATION);
     }
 
-    // Check if placed piece is red and track it
-    if (piece.color === '#FF0000') {
+    // Check if placed piece has any red SVG refs and track it
+    const hasRedSvg = piece.svgRefs && piece.svgRefs.some(ref => ref === SVG_IDS.SOLID_RED);
+    if (hasRedSvg) {
       setRedPiecesPlaced(prevCount => {
         const newCount = prevCount + 1;
         // When required red pieces are placed, generate a bomb piece

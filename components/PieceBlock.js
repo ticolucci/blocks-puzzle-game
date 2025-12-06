@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, Text } from 'react-native';
+import { renderSVG } from '../constants/svgRegistry';
 
-export default function PieceBlock({ color, size = 20, isPressed = false, icon = null }) {
+export default function PieceBlock({ svgRef, size = 20, isPressed = false, icon = null }) {
   return (
     <View
       style={[
@@ -9,12 +10,18 @@ export default function PieceBlock({ color, size = 20, isPressed = false, icon =
         {
           width: size,
           height: size,
-          backgroundColor: color,
         },
         isPressed && styles.pressed,
       ]}
     >
-      {/* Inner highlight for 3D effect */}
+      {/* Render SVG as background */}
+      {svgRef && (
+        <View style={StyleSheet.absoluteFill}>
+          {renderSVG(svgRef, size)}
+        </View>
+      )}
+
+      {/* Inner highlight for 3D effect (overlays SVG) */}
       <View style={styles.highlight} />
 
       {/* Icon overlay (e.g., bomb emoji) */}

@@ -5,7 +5,7 @@ import { COLORS, GAME_CONFIG, PIECE_TYPES } from '../constants/gameConfig';
 
 export default function Piece({
   shape,
-  color = COLORS.CELL_FILLED,
+  svgRefs,
   onPress,
   blockSize = GAME_CONFIG.CELL_SIZE,
   type = PIECE_TYPES.NORMAL,
@@ -17,27 +17,36 @@ export default function Piece({
 
   const content = (
     <View style={styles.container}>
-      {shape.map((row, rowIndex) => (
-        <View key={`row-${rowIndex}`} style={styles.row}>
-          {row.map((cell, colIndex) => (
-            <View
-              key={`cell-${rowIndex}-${colIndex}`}
-              style={[styles.cellContainer, { width: blockSize, height: blockSize }]}
-            >
-              {cell === 1 && (
-                <View testID={`piece-block-${rowIndex}-${colIndex}`}>
-                  <PieceBlock
-                    color={color}
-                    size={blockSize}
-                    isPressed={isPressed}
-                    icon={type === PIECE_TYPES.BOMB ? '💣' : null}
-                  />
+      {shape.map((row, rowIndex) => {
+        let cellIndex = 0; // Track index for svgRefs mapping
+
+        return (
+          <View key={`row-${rowIndex}`} style={styles.row}>
+            {row.map((cell, colIndex) => {
+              const currentIndex = cellIndex;
+              if (cell === 1) cellIndex++; // Increment only for filled cells
+
+              return (
+                <View
+                  key={`cell-${rowIndex}-${colIndex}`}
+                  style={[styles.cellContainer, { width: blockSize, height: blockSize }]}
+                >
+                  {cell === 1 && (
+                    <View testID={`piece-block-${rowIndex}-${colIndex}`}>
+                      <PieceBlock
+                        svgRef={svgRefs[currentIndex]}
+                        size={blockSize}
+                        isPressed={isPressed}
+                        icon={type === PIECE_TYPES.BOMB ? '💣' : null}
+                      />
+                    </View>
+                  )}
                 </View>
-              )}
-            </View>
-          ))}
-        </View>
-      ))}
+              );
+            })}
+          </View>
+        );
+      })}
     </View>
   );
 
