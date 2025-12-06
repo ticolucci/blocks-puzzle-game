@@ -1,0 +1,19 @@
+{
+  "name": "Blocks Puzzle Game",
+  "short_name": "Blocks Puzzle",
+  "description": "A puzzle game where you place tetris-like pieces on a canvas",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#4630EB",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -5,8 +5,20 @@
     "version": "1.0.0",
     "jsEngine": "hermes",
     "platforms": ["ios", "android", "web"],
+    "icon": "./assets/favicon.png",
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/favicon.png",
+      "name": "Blocks Puzzle Game",
+      "shortName": "Blocks Puzzle",
+      "display": "standalone",
+      "orientation": "portrait",
+      "backgroundColor": "#ffffff",
+      "themeColor": "#4630EB",
+      "scope": "/",
+      "startUrl": "/",
+      "lang": "en",
+      "description": "A puzzle game where you place tetris-like pieces on a canvas"
     },
     "ios": {
       "bundleIdentifier": "com.ticolucci.blockpuzzle",

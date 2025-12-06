@@ -44,6 +44,22 @@ export default function GameScreen() {
     dragStateRef.current = dragState;
   }, [boardLayout, gridState, dragState]);
 
+  const getBoardLayout = useCallback(() => {
+    if (gameBoardRef.current) {
+      gameBoardRef.current.measureInWindow((x, y, width, height) => {
+        const newLayout = {
+          x,
+          y,
+          width,
+          height,
+          cellSize: GAME_CONFIG.CELL_SIZE,
+        };
+        console.log('Setting board layout (measureInWindow):', newLayout);
+        setBoardLayout(newLayout);
+      });
+    }
+  }, []);
+
   // Measure board position on mount and when layout changes
   useEffect(() => {
     // Small delay to ensure the board has been rendered
@@ -203,22 +219,6 @@ export default function GameScreen() {
 
     return true;
   }, [setGridState, setPieces, dragState]);
-
-  const getBoardLayout = useCallback(() => {
-    if (gameBoardRef.current) {
-      gameBoardRef.current.measureInWindow((x, y, width, height) => {
-        const newLayout = {
-          x,
-          y,
-          width,
-          height,
-          cellSize: GAME_CONFIG.CELL_SIZE,
-        };
-        console.log('Setting board layout (measureInWindow):', newLayout);
-        setBoardLayout(newLayout);
-      });
-    }
-  }, []);
 
   // Drag handlers (inlined from useDragHandlers)
   const handleDragStart = useCallback((piece) => {
