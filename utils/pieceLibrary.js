@@ -1,5 +1,5 @@
 import { rotateMatrix } from './pieceRotation';
-import { PIECE_SHAPES, COLOR_POOL, PIECE_TYPES } from '../constants/gameConfig';
+import { PIECE_SHAPES, COLOR_POOL, PIECE_TYPES, GAME_CONFIG } from '../constants/gameConfig';
 import { getRandomElement } from './arrayHelpers';
 
 const ROTATION_ANGLES = [0, 90, 180, 270];
@@ -82,6 +82,7 @@ export function getRandomPieces(count, shuffle = false) {
         shape: libraryPiece.shape.map(row => [...row]), // Deep clone shape array
         runtimeId: nextRuntimeId++,
         color: getRandomColor(),
+        type: PIECE_TYPES.NORMAL,
       };
     });
   }
@@ -96,6 +97,7 @@ export function getRandomPieces(count, shuffle = false) {
       shape: libraryPiece.shape.map(row => [...row]), // Deep clone shape array
       runtimeId: nextRuntimeId++,
       color: getRandomColor(),
+      type: PIECE_TYPES.NORMAL,
     };
   });
 }
@@ -103,13 +105,21 @@ export function getRandomPieces(count, shuffle = false) {
 /**
  * Initialize pieces for game with placement tracking
  * @param {number} count - Number of pieces to generate
+ * @param {number} rainbowProbability - Probability (0-1) of generating a rainbow piece (defaults to GAME_CONFIG.RAINBOW_PROBABILITY)
  * @returns {Array} Array of pieces with isPlaced set to false
  */
-export function initializeGamePieces(count) {
-  return getRandomPieces(count).map(piece => ({
-    ...piece,
-    isPlaced: false,
-  }));
+export function initializeGamePieces(count, rainbowProbability = GAME_CONFIG.RAINBOW_PROBABILITY) {
+  return Array.from({ length: count }, () => {
+    // Decide if this piece should be a rainbow piece
+    const piece = Math.random() < rainbowProbability
+      ? createRainbowPiece()
+      : getRandomPieces(1)[0];
+
+    return {
+      ...piece,
+      isPlaced: false,
+    };
+  });
 }
 
 /**
@@ -135,6 +145,22 @@ export function createBombPiece() {
     rotationIndex: 0,
     color: '#808080', // Grey
     type: PIECE_TYPES.BOMB,
-    isPlaced: false,
+  };
+}
+
+/**
+ * Creates a rainbow piece
+ * @returns {Object} A rainbow piece object
+ */
+export function createRainbowPiece() {
+  return {
+    runtimeId: nextRuntimeId++,
+    id: 'RAINBOW_1X1_0',
+    shapeName: 'RAINBOW',
+    shape: [[1]],
+    rotation: 0,
+    rotationIndex: 0,
+    color: 'rainbow',
+    type: PIECE_TYPES.RAINBOW,
   };
 }

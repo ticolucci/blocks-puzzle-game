@@ -1,3 +1,5 @@
+import { PIECE_TYPES } from '../constants/gameConfig';
+
 /**
  * Check if a cell position is within the board bounds
  * @param {{row: number, col: number}} cell - The cell position to check
@@ -6,6 +8,15 @@
  */
 const isWithinBounds = (cell, boardSize) => {
   return cell.row >= 0 && cell.row < boardSize && cell.col >= 0 && cell.col < boardSize;
+};
+
+/**
+ * Check if a piece is a rainbow piece
+ * @param {{type?: string}} piece - The piece to check
+ * @returns {boolean} True if piece is a rainbow piece, false otherwise
+ */
+const isRainbowPiece = (piece) => {
+  return piece.type === PIECE_TYPES.RAINBOW;
 };
 
 /**
@@ -40,7 +51,7 @@ export const getAffectedCells = (piece, gridRow, gridCol) => {
 
 /**
  * Check if a piece can be placed at the specified position
- * @param {{shape: number[][]}} piece - The piece to place
+ * @param {{shape: number[][], type?: string}} piece - The piece to place
  * @param {number} gridRow - The starting row position
  * @param {number} gridCol - The starting column position
  * @param {Array<Array<{row: number, col: number, filled: boolean}>>} gridState - Current grid state
@@ -63,6 +74,11 @@ export const canPlacePiece = (piece, gridRow, gridCol, gridState, boardSize) => 
     return { valid: false, affectedCells: [] };
   }
 
+  // Rainbow pieces can be placed anywhere (skip collision detection)
+  if (isRainbowPiece(piece)) {
+    return { valid: true, affectedCells };
+  }
+
   // Check if any cell is already filled (collision detection)
   const hasCollision = affectedCells.some(cell => gridState[cell.row][cell.col].filled);
   if (hasCollision) {
@@ -75,7 +91,7 @@ export const canPlacePiece = (piece, gridRow, gridCol, gridState, boardSize) => 
 
 /**
  * Check if a piece can be placed anywhere on the board
- * @param {{shape: number[][]}} piece - The piece to check
+ * @param {{shape: number[][], type?: string}} piece - The piece to check
  * @param {Array<Array<{row: number, col: number, filled: boolean}>>} gridState - Current grid state
  * @param {number} boardSize - The size of the board (e.g., 10 for 10x10)
  * @returns {boolean} True if piece can fit somewhere, false otherwise

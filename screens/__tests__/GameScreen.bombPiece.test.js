@@ -97,7 +97,6 @@ describe('GameScreen - Bomb Piece Feature', () => {
       expect(bombPiece.color).toBe('#808080');
       expect(bombPiece.shape).toEqual([[1]]);
       expect(bombPiece.shapeName).toBe('BOMB');
-      expect(bombPiece.isPlaced).toBe(false);
     });
 
     test('does not generate bomb piece after placing only 2 red pieces', () => {

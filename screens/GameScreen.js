@@ -4,6 +4,7 @@ import GameBoard from '../components/GameBoard';
 import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
 import GameOverModal from '../components/GameOverModal';
+import NyanCat from '../components/NyanCat';
 import { GAME_CONFIG, PIECE_TYPES } from '../constants/gameConfig';
 import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced, createBombPiece } from '../utils/pieceLibrary';
 import { createEmptyGrid } from '../utils/gridHelpers';
@@ -27,6 +28,7 @@ export default function GameScreen() {
   const [previewCells, setPreviewCells] = useState(null);
   const [previewValid, setPreviewValid] = useState(true);
   const [clearingCells, setClearingCells] = useState(null);
+  const [showNyanCat, setShowNyanCat] = useState(false);
 
   // Ref to GameBoard component for measuring absolute screen position
   const gameBoardRef = useRef(null);
@@ -177,13 +179,21 @@ export default function GameScreen() {
       )
     );
 
+    // Trigger nyan cat animation if rainbow piece is placed
+    if (piece.type === PIECE_TYPES.RAINBOW) {
+      setShowNyanCat(true);
+      setTimeout(() => {
+        setShowNyanCat(false);
+      }, GAME_CONFIG.NYAN_CAT_ANIMATION_DURATION);
+    }
+
     // Check if placed piece is red and track it
     if (piece.color === '#FF0000') {
       setRedPiecesPlaced(prevCount => {
         const newCount = prevCount + 1;
         // When required red pieces are placed, generate a bomb piece
         if (newCount === GAME_CONFIG.RED_PIECES_FOR_BOMB) {
-          const bombPiece = createBombPiece();
+          const bombPiece = { ...createBombPiece(), isPlaced: false };
           setPieces(prevPieces => [...prevPieces, bombPiece]);
           return 0; // Reset counter
         }
@@ -311,6 +321,8 @@ export default function GameScreen() {
           onDragEnd={handleDragEnd}
         />
       </View>
+
+      <NyanCat visible={showNyanCat} />
 
       <GameOverModal visible={isGameOver} score={score} onRestart={handleRestart} />
     </View>

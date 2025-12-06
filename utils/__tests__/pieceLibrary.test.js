@@ -297,4 +297,72 @@ describe('pieceLibrary', () => {
       expect(areAllPiecesPlaced(pieces)).toBe(false);
     });
   });
+
+  describe('createRainbowPiece', () => {
+    test('creates a rainbow piece with correct structure', () => {
+      const { createRainbowPiece } = require('../pieceLibrary');
+      const rainbowPiece = createRainbowPiece();
+
+      expect(rainbowPiece).toHaveProperty('runtimeId');
+      expect(rainbowPiece).toHaveProperty('id');
+      expect(rainbowPiece).toHaveProperty('shapeName');
+      expect(rainbowPiece).toHaveProperty('shape');
+      expect(rainbowPiece).toHaveProperty('color');
+      expect(rainbowPiece).toHaveProperty('type');
+    });
+
+    test('rainbow piece has type "rainbow"', () => {
+      const { createRainbowPiece } = require('../pieceLibrary');
+      const { PIECE_TYPES } = require('../../constants/gameConfig');
+      const rainbowPiece = createRainbowPiece();
+
+      expect(rainbowPiece.type).toBe(PIECE_TYPES.RAINBOW);
+    });
+
+    test('rainbow piece has special rainbow gradient color', () => {
+      const { createRainbowPiece } = require('../pieceLibrary');
+      const rainbowPiece = createRainbowPiece();
+
+      expect(rainbowPiece.color).toBe('rainbow');
+    });
+
+    test('rainbow piece has a single block shape', () => {
+      const { createRainbowPiece } = require('../pieceLibrary');
+      const rainbowPiece = createRainbowPiece();
+
+      expect(rainbowPiece.shape).toEqual([[1]]);
+      expect(rainbowPiece.shapeName).toBe('RAINBOW');
+    });
+  });
+
+  describe('initializeGamePieces with rainbow pieces', () => {
+    test('occasionally generates rainbow pieces based on probability', () => {
+      const { initializeGamePieces } = require('../pieceLibrary');
+      const { PIECE_TYPES } = require('../../constants/gameConfig');
+
+      // Generate many pieces to test probability
+      const pieces = initializeGamePieces(100, 1.0); // 100% rainbow probability for testing
+
+      // All pieces should be rainbow pieces
+      const rainbowCount = pieces.filter(p => p.type === PIECE_TYPES.RAINBOW).length;
+      expect(rainbowCount).toBe(100);
+    });
+
+    test('with 0% probability, no rainbow pieces are generated', () => {
+      const { initializeGamePieces } = require('../pieceLibrary');
+      const { PIECE_TYPES } = require('../../constants/gameConfig');
+
+      const pieces = initializeGamePieces(100, 0); // 0% rainbow probability
+
+      const rainbowCount = pieces.filter(p => p.type === PIECE_TYPES.RAINBOW).length;
+      expect(rainbowCount).toBe(0);
+    });
+
+    test('rainbow probability parameter is optional and defaults to config value', () => {
+      const { initializeGamePieces } = require('../pieceLibrary');
+
+      // Should not throw when called without rainbow probability parameter
+      expect(() => initializeGamePieces(3)).not.toThrow();
+    });
+  });
 });

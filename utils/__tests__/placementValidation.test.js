@@ -324,4 +324,74 @@ describe('placementValidation', () => {
       expect(result).toBe(true);
     });
   });
+
+  describe('Rainbow Piece Placement', () => {
+    const { PIECE_TYPES } = require('../../constants/gameConfig');
+
+    const rainbowPiece = {
+      shape: [[1]],
+      type: PIECE_TYPES.RAINBOW,
+    };
+
+    const normalPiece = {
+      shape: [[1]],
+      type: PIECE_TYPES.NORMAL,
+    };
+
+    test('rainbow piece can be placed on empty cell', () => {
+      const result = canPlacePiece(rainbowPiece, 0, 0, emptyGrid, boardSize);
+      expect(result.valid).toBe(true);
+    });
+
+    test('rainbow piece can be placed on filled cell', () => {
+      // Fill a cell
+      emptyGrid[5][5].filled = true;
+
+      const result = canPlacePiece(rainbowPiece, 5, 5, emptyGrid, boardSize);
+      expect(result.valid).toBe(true);
+    });
+
+    test('rainbow piece can be placed anywhere on completely filled board', () => {
+      // Fill entire board
+      fillBoardExcept(emptyGrid, () => true);
+
+      const result = canPlacePiece(rainbowPiece, 3, 3, emptyGrid, boardSize);
+      expect(result.valid).toBe(true);
+    });
+
+    test('rainbow piece still respects board boundaries', () => {
+      // Rainbow pieces can't be placed outside the board
+      const result = canPlacePiece(rainbowPiece, -1, 0, emptyGrid, boardSize);
+      expect(result.valid).toBe(false);
+    });
+
+    test('rainbow piece can be placed at edge of board', () => {
+      const result = canPlacePiece(rainbowPiece, 9, 9, emptyGrid, boardSize);
+      expect(result.valid).toBe(true);
+    });
+
+    test('normal piece cannot be placed on filled cell', () => {
+      // Fill a cell
+      emptyGrid[5][5].filled = true;
+
+      const result = canPlacePiece(normalPiece, 5, 5, emptyGrid, boardSize);
+      expect(result.valid).toBe(false);
+    });
+
+    test('isPossibleToPlace returns true for rainbow piece on full board', () => {
+      // Fill entire board
+      fillBoardExcept(emptyGrid, () => true);
+
+      const result = isPossibleToPlace(rainbowPiece, emptyGrid, boardSize);
+      expect(result).toBe(true);
+    });
+
+    test('isPossibleToPlace returns false for normal piece on full board', () => {
+      // Fill entire board
+      fillBoardExcept(emptyGrid, () => true);
+
+      const result = isPossibleToPlace(normalPiece, emptyGrid, boardSize);
+      expect(result).toBe(false);
+    });
+  });
 });

@@ -1,6 +1,7 @@
 export const PIECE_TYPES = {
   NORMAL: 'normal',
   BOMB: 'bomb',
+  RAINBOW: 'rainbow',
 };
 
 export const GAME_CONFIG = {
@@ -14,7 +15,12 @@ export const GAME_CONFIG = {
   MAX_HIGH_SCORES: 3,
   PLAYER_NAME_LENGTH: 3,
   BOMB_RADIUS: 2, // Radius for bomb piece clearing
-  RED_PIECES_FOR_BOMB: 3, // Number of red pieces needed to generate a bomb
+  RED_PIECES_FOR_BOMB: 1, // Number of red pieces needed to generate a bomb
+  RAINBOW_PROBABILITY: 0.1, // 10% chance to generate a rainbow piece
+  NYAN_CAT_ANIMATION_DURATION: 2000, // Nyan cat animation duration in milliseconds
+  NYAN_CAT_START_POSITION: -200, // Starting X position (off-screen left)
+  NYAN_CAT_END_POSITION: 500, // Ending X position (off-screen right)
+  NYAN_CAT_VERTICAL_POSITION: '40%', // Vertical position on screen
 };
 
 export const COLORS = {
@@ -40,6 +46,15 @@ export const COLOR_POOL = [
   '#FFFF00', // yellow
   '#800080', // purple
   '#FFC0CB', // pink
+];
+
+export const RAINBOW_COLORS = [
+  '#FF0000', // Red
+  '#FFA500', // Orange
+  '#FFFF00', // Yellow
+  '#00FF00', // Green
+  '#0000FF', // Blue
+  '#4B0082', // Indigo
 ];
 
 export const PIECE_SHAPES = {
