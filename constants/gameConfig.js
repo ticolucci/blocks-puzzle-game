@@ -15,7 +15,7 @@ export const GAME_CONFIG = {
   HIGH_SCORES_KEY: 'high_scores',
   MAX_HIGH_SCORES: 3,
   PLAYER_NAME_LENGTH: 3,
-  BOMB_RADIUS: 2, // Radius for bomb piece clearing
+  BOMB_SIZE: 5, // Size of square area for bomb clearing (odd numbers only - e.g., 3=3x3, 5=5x5)
   RED_PIECES_FOR_BOMB: 1, // Number of red pieces needed to generate a bomb
   RAINBOW_PROBABILITY: 0.1, // 10% chance to generate a rainbow piece
   NYAN_CAT_ANIMATION_DURATION: 2000, // Nyan cat animation duration in milliseconds

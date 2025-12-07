@@ -239,15 +239,15 @@ describe('GameScreen - Bomb Piece Feature', () => {
       pieceLibrary.initializeGamePieces.mockRestore();
     });
 
-    test('bomb clearing radius is configurable (default 2)', () => {
-      // Test that the radius can be configured
-      // For now, we'll test that radius = 2 is the default
-      const BOMB_RADIUS = 2;
-      expect(BOMB_RADIUS).toBe(2);
+    test('bomb clearing size is configurable (default 5)', () => {
+      // Test that the bomb size can be configured
+      // Default is 5 (5x5 square)
+      const BOMB_SIZE = 5;
+      expect(BOMB_SIZE).toBe(5);
     });
 
-    test('bomb does not clear pieces beyond radius', () => {
-      // This test verifies that pieces outside the radius are not affected
+    test('bomb does not clear pieces beyond square area', () => {
+      // This test verifies that pieces outside the square area are not affected
       // Will be implemented after the main clearing logic
     });
   });

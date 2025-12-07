@@ -132,11 +132,11 @@ export default function GameScreen() {
         // Get bomb position (first affected cell)
         const bombPosition = currentDragState.affectedCells[0];
 
-        // Get cells to clear in radius
+        // Get cells to clear in square area
         const cellsToAnimate = getCellsInRadius(
           bombPosition.row,
           bombPosition.col,
-          GAME_CONFIG.BOMB_RADIUS,
+          GAME_CONFIG.BOMB_SIZE,
           GAME_CONFIG.BOARD_SIZE,
           newGrid,
           true // Only animate filled cells
@@ -147,7 +147,7 @@ export default function GameScreen() {
 
         // After animation delay, clear the cells
         setTimeout(() => {
-          const clearedGrid = clearBombRadius(newGrid, bombPosition.row, bombPosition.col, GAME_CONFIG.BOMB_RADIUS);
+          const clearedGrid = clearBombRadius(newGrid, bombPosition.row, bombPosition.col, GAME_CONFIG.BOMB_SIZE);
           setGridState(clearedGrid);
           setClearingCells(null);
         }, 400); // 400ms animation duration
