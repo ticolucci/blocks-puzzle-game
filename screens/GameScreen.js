@@ -37,6 +37,7 @@ export default function GameScreen() {
   const boardLayoutRef = useRef(boardLayout);
   const gridStateRef = useRef(gridState);
   const dragStateRef = useRef(dragState);
+  const draggingPieceRef = useRef(null);
 
   useEffect(() => {
     boardLayoutRef.current = boardLayout;
@@ -52,7 +53,7 @@ export default function GameScreen() {
           y: y + GAME_CONFIG.CELL_BORDER_WIDTH,
           width: width - 2 * GAME_CONFIG.CELL_BORDER_WIDTH,
           height: height - 2 * GAME_CONFIG.CELL_BORDER_WIDTH,
-          cellSize: GAME_CONFIG.EFFECTIVE_CELL_SIZE, // Use effective size (includes borders)
+          cellSize: GAME_CONFIG.CELL_SIZE, // Use cell content size (29px, borders are visual only)
         };
         console.log('Setting board layout (measureInWindow):', newLayout);
         setBoardLayout(newLayout);
@@ -233,6 +234,7 @@ export default function GameScreen() {
   // Drag handlers (inlined from useDragHandlers)
   const handleDragStart = useCallback((piece) => {
     console.log('Drag started for piece:', piece);
+    draggingPieceRef.current = piece;
     setDragState({ piece });
     setPreviewCells(null);
     setPreviewValid(true);

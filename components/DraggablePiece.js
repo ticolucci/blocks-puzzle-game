@@ -101,13 +101,10 @@ function DraggablePiece({
             const scaledWidth = pieceLayout.current.width;
             const scaledHeight = pieceLayout.current.height;
 
-            // Calculate full-size dimensions (piece will scale to 1.0)
-            const fullWidth = scaledWidth / selectorScale;
-            const fullHeight = scaledHeight / selectorScale;
-
-            // Calculate where piece center WILL BE after scaling
-            const pieceCenterX = pieceLayout.current.x + (fullWidth / 2);
-            const pieceCenterY = pieceLayout.current.y + (fullHeight / 2);
+            // Calculate piece center at current (scaled) position
+            // When piece scales from center, the center position stays the same
+            const pieceCenterX = pieceLayout.current.x + (scaledWidth / 2);
+            const pieceCenterY = pieceLayout.current.y + (scaledHeight / 2);
 
             // Offset needed to center piece under finger
             initialOffset.current = {
@@ -129,13 +126,10 @@ function DraggablePiece({
                 const scaledWidth = width;
                 const scaledHeight = height;
 
-                // Calculate full-size dimensions (piece will scale to 1.0)
-                const fullWidth = scaledWidth / selectorScale;
-                const fullHeight = scaledHeight / selectorScale;
-
-                // Calculate where piece center WILL BE after scaling
-                const pieceCenterX = x + (fullWidth / 2);
-                const pieceCenterY = y + (fullHeight / 2);
+                // Calculate piece center at current (scaled) position
+                // When piece scales from center, the center position stays the same
+                const pieceCenterX = x + (scaledWidth / 2);
+                const pieceCenterY = y + (scaledHeight / 2);
 
                 // Offset needed to center piece under finger
                 initialOffset.current = {
