@@ -97,10 +97,19 @@ function DraggablePiece({
           // Check if we have valid pre-measured layout (width > 0 means measurement completed)
           if (pieceLayout.current.width > 0) {
             // Fast path: use pre-measured layout
-            const pieceCenterX = pieceLayout.current.x + (pieceLayout.current.width / 2);
-            const pieceCenterY = pieceLayout.current.y + (pieceLayout.current.height / 2);
+            // Get scaled dimensions from measurement
+            const scaledWidth = pieceLayout.current.width;
+            const scaledHeight = pieceLayout.current.height;
 
-            // Calculate the offset needed to center the piece under the finger
+            // Calculate full-size dimensions (piece will scale to 1.0)
+            const fullWidth = scaledWidth / selectorScale;
+            const fullHeight = scaledHeight / selectorScale;
+
+            // Calculate where piece center WILL BE after scaling
+            const pieceCenterX = pieceLayout.current.x + (fullWidth / 2);
+            const pieceCenterY = pieceLayout.current.y + (fullHeight / 2);
+
+            // Offset needed to center piece under finger
             initialOffset.current = {
               x: event.nativeEvent.pageX - pieceCenterX,
               y: event.nativeEvent.pageY - pieceCenterY,
@@ -116,11 +125,19 @@ function DraggablePiece({
             if (viewRef.current) {
               event.persist();
               viewRef.current.measureInWindow((x, y, width, height) => {
-                // Calculate piece center
-                const pieceCenterX = x + (width / 2);
-                const pieceCenterY = y + (height / 2);
+                // Get scaled dimensions from measurement
+                const scaledWidth = width;
+                const scaledHeight = height;
 
-                // Calculate the offset needed to center the piece under the finger
+                // Calculate full-size dimensions (piece will scale to 1.0)
+                const fullWidth = scaledWidth / selectorScale;
+                const fullHeight = scaledHeight / selectorScale;
+
+                // Calculate where piece center WILL BE after scaling
+                const pieceCenterX = x + (fullWidth / 2);
+                const pieceCenterY = y + (fullHeight / 2);
+
+                // Offset needed to center piece under finger
                 initialOffset.current = {
                   x: event.nativeEvent.pageX - pieceCenterX,
                   y: event.nativeEvent.pageY - pieceCenterY,

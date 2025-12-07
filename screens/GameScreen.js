@@ -8,13 +8,12 @@ import NyanCat from '../components/NyanCat';
 import { GAME_CONFIG, PIECE_TYPES, SVG_IDS } from '../constants/gameConfig';
 import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced, createBombPiece } from '../utils/pieceLibrary';
 import { createEmptyGrid } from '../utils/gridHelpers';
-import { screenToGridPosition } from '../utils/gridCoordinates';
+import { touchToPlacement } from '../utils/gridCoordinates';
 import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/placementValidation';
 import { getFilledRows, getFilledColumns, clearLines, calculateClearScore } from '../utils/gridClearing';
 import { clearBombRadius, getCellsInRadius } from '../utils/bombClearing';
 import { getMaxScore } from '../utils/highScores';
 import { calculatePlacementScore } from '../utils/placementScoring';
-import { centerToAnchor } from '../utils/pieceHelpers';
 
 export default function GameScreen() {
   const [score, setScore] = useState(GAME_CONFIG.INITIAL_SCORE);
@@ -49,14 +48,15 @@ export default function GameScreen() {
     if (gameBoardRef.current) {
       gameBoardRef.current.measureInWindow((x, y, width, height) => {
         const newLayout = {
-          x,
-          y,
-          width,
-          height,
-          cellSize: GAME_CONFIG.CELL_SIZE,
+          x: x + GAME_CONFIG.CELL_BORDER_WIDTH, // Account for outer border
+          y: y + GAME_CONFIG.CELL_BORDER_WIDTH,
+          width: width - 2 * GAME_CONFIG.CELL_BORDER_WIDTH,
+          height: height - 2 * GAME_CONFIG.CELL_BORDER_WIDTH,
+          cellSize: GAME_CONFIG.EFFECTIVE_CELL_SIZE, // Use effective size (includes borders)
         };
         console.log('Setting board layout (measureInWindow):', newLayout);
         setBoardLayout(newLayout);
+        boardLayoutRef.current = newLayout;
       });
     }
   }, []);
@@ -242,30 +242,41 @@ export default function GameScreen() {
     // Access current values from refs
     const currentBoardLayout = boardLayoutRef.current;
     const currentGridState = gridStateRef.current;
+    const currentDraggingPiece = draggingPieceRef.current;
 
     if (!currentBoardLayout || !currentGridState) {
       return;
     }
 
-    // Convert screen coordinates to grid position (this is the CENTER of the piece)
-    const centerGridPosition = screenToGridPosition(screenX, screenY, currentBoardLayout);
-    if (!centerGridPosition) {
-      // Outside grid bounds
-      setPreviewCells(null);
-      setPreviewValid(false);
-      setDragState({ piece, currentX: screenX, currentY: screenY, isValid: false });
+    if (!currentDraggingPiece || currentDraggingPiece.runtimeId !== piece.runtimeId) {
       return;
     }
 
-    // Convert center position to top-left anchor position
-    const anchorPosition = centerToAnchor(centerGridPosition, piece.shape);
+    // Direct conversion from touch to anchor position
+    const anchorPosition = touchToPlacement(screenX, screenY, piece.shape, currentBoardLayout);
+
+    if (!anchorPosition) {
+      // Outside grid bounds or invalid position
+      setPreviewCells([]);
+      setPreviewValid(false);
+      dragStateRef.current = { isValid: false, affectedCells: [] };
+      return;
+    }
 
     // Validate placement using the anchor position
     const validation = canPlacePiece(piece, anchorPosition.row, anchorPosition.col, currentGridState, GAME_CONFIG.BOARD_SIZE);
 
     // Update preview
-    setPreviewCells(validation.valid ? validation.affectedCells : getAffectedCells(piece, anchorPosition.row, anchorPosition.col));
-    setPreviewValid(validation.valid);
+    if (validation.valid) {
+      setPreviewCells(validation.affectedCells);
+      setPreviewValid(true);
+      dragStateRef.current = { isValid: true, affectedCells: validation.affectedCells };
+    } else {
+      const invalidCells = getAffectedCells(piece, anchorPosition.row, anchorPosition.col);
+      setPreviewCells(invalidCells);
+      setPreviewValid(false);
+      dragStateRef.current = { isValid: false, affectedCells: [] };
+    }
 
     // Update drag state
     setDragState({

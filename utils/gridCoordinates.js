@@ -41,6 +41,39 @@ export const screenToGridPosition = (screenX, screenY, boardLayout) => {
 };
 
 /**
+ * Converts touch coordinates directly to piece anchor position
+ * @param {number} touchX - Touch X coordinate (pageX)
+ * @param {number} touchY - Touch Y coordinate (pageY)
+ * @param {Array} pieceShape - Piece shape matrix
+ * @param {Object} boardLayout - Board layout {x, y, width, height, cellSize}
+ * @returns {Object} {row, col} anchor position or null if inputs invalid
+ */
+export const touchToPlacement = (touchX, touchY, pieceShape, boardLayout) => {
+  if (!boardLayout || !pieceShape) return null;
+
+  const cellSize = boardLayout.cellSize;
+
+  // Piece dimensions in cells
+  const pieceRows = pieceShape.length;
+  const pieceCols = pieceShape[0]?.length || 0;
+
+  // Touch position relative to board (in pixels)
+  const relX = touchX - boardLayout.x;
+  const relY = touchY - boardLayout.y;
+
+  // Touch position in fractional grid coordinates
+  const touchGridCol = relX / cellSize;
+  const touchGridRow = relY / cellSize;
+
+  // Anchor position (top-left of piece) - center piece on touch
+  // Using Math.floor(x + 0.5) for symmetric rounding
+  const anchorCol = Math.floor(touchGridCol - (pieceCols - 1) / 2 + 0.5);
+  const anchorRow = Math.floor(touchGridRow - (pieceRows - 1) / 2 + 0.5);
+
+  return { row: anchorRow, col: anchorCol };
+};
+
+/**
  * Convert grid position back to screen coordinates
  * @param {{row: number, col: number}} gridPosition - The grid position
  * @param {{x: number, y: number, cellSize: number}} boardLayout - Board layout info

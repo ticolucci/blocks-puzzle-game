@@ -68,7 +68,7 @@ export default function Piece({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 5,
+    padding: 0,
   },
   row: {
     flexDirection: 'row',

@@ -7,6 +7,11 @@ export const PIECE_TYPES = {
 export const GAME_CONFIG = {
   BOARD_SIZE: 10,
   CELL_SIZE: 29,
+  CELL_BORDER_WIDTH: 1,
+  // Effective cell size including borders
+  get EFFECTIVE_CELL_SIZE() {
+    return this.CELL_SIZE + 2 * this.CELL_BORDER_WIDTH;
+  },
   MAX_PIECE_SIZE: 5,
   SELECTOR_SCALE: 0.65, // Scale factor for piece previews in selector (% of gameplay size)
   INITIAL_SCORE: 0,
