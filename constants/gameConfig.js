@@ -11,6 +11,7 @@ export const GAME_CONFIG = {
   SELECTOR_SCALE: 0.65, // Scale factor for piece previews in selector (% of gameplay size)
   INITIAL_SCORE: 0,
   LINE_CLEAR_BASE_POINTS: 1000,
+  PLACEMENT_POINTS_PER_BLOCK: 10,
   HIGH_SCORES_KEY: 'high_scores',
   MAX_HIGH_SCORES: 3,
   PLAYER_NAME_LENGTH: 3,

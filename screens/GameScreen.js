@@ -13,6 +13,7 @@ import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/pla
 import { getFilledRows, getFilledColumns, clearLines, calculateClearScore } from '../utils/gridClearing';
 import { clearBombRadius, getCellsInRadius } from '../utils/bombClearing';
 import { getMaxScore } from '../utils/highScores';
+import { calculatePlacementScore } from '../utils/placementScoring';
 import { centerToAnchor } from '../utils/pieceHelpers';
 
 export default function GameScreen() {
@@ -124,6 +125,10 @@ export default function GameScreen() {
 
       // Check if piece is a bomb
       if (piece.type === PIECE_TYPES.BOMB) {
+        // Award points for placing the bomb piece (10 points per block)
+        const placementPoints = calculatePlacementScore(piece);
+        setScore(prevScore => prevScore + placementPoints);
+
         // Get bomb position (first affected cell)
         const bombPosition = currentDragState.affectedCells[0];
 
@@ -149,6 +154,10 @@ export default function GameScreen() {
 
         return newGrid;
       }
+
+      // Award points for placing the piece (10 points per block)
+      const placementPoints = calculatePlacementScore(piece);
+      setScore(prevScore => prevScore + placementPoints);
 
       // Check for filled rows and columns (normal pieces)
       const filledRows = getFilledRows(newGrid, GAME_CONFIG.BOARD_SIZE);
