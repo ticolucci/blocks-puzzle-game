@@ -1,3 +1,8 @@
+/**
+ * @deprecated Bombs are now items in the inventory system, not pieces
+ * This test file is kept for backwards compatibility but tests outdated functionality
+ * See GameScreen.itemUsage.test.js for current bomb/inventory tests
+ */
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import GameScreen from '../GameScreen';

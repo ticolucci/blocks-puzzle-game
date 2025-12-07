@@ -5,15 +5,18 @@ import ScoreCounter from '../components/ScoreCounter';
 import PieceSelector from '../components/PieceSelector';
 import GameOverModal from '../components/GameOverModal';
 import NyanCat from '../components/NyanCat';
+import ItemInventory from '../components/ItemInventory';
 import { GAME_CONFIG, PIECE_TYPES, SVG_IDS } from '../constants/gameConfig';
+import { ITEM_TYPES } from '../constants/itemTypes';
 import { initializeGamePieces, getRandomPieces, areAllPiecesPlaced, createBombPiece } from '../utils/pieceLibrary';
 import { createEmptyGrid } from '../utils/gridHelpers';
 import { touchToPlacement } from '../utils/gridCoordinates';
 import { canPlacePiece, getAffectedCells, isPossibleToPlace } from '../utils/placementValidation';
 import { getFilledRows, getFilledColumns, clearLines, calculateClearScore } from '../utils/gridClearing';
-import { clearBombRadius, getCellsInRadius } from '../utils/bombClearing';
+import { clearBombRadius, getCellsInRadius, useBombItem } from '../utils/bombClearing';
 import { getMaxScore } from '../utils/highScores';
 import { calculatePlacementScore } from '../utils/placementScoring';
+import { isRedPiece, addItemToInventory, removeItemFromInventory, hasItem } from '../utils/itemGeneration';
 
 export default function GameScreen() {
   const [score, setScore] = useState(GAME_CONFIG.INITIAL_SCORE);
@@ -29,6 +32,11 @@ export default function GameScreen() {
   const [previewValid, setPreviewValid] = useState(true);
   const [clearingCells, setClearingCells] = useState(null);
   const [showNyanCat, setShowNyanCat] = useState(false);
+
+  // Inventory state
+  const [inventory, setInventory] = useState({ [ITEM_TYPES.BOMB]: 0 });
+  const [itemDragState, setItemDragState] = useState(null);
+  const [itemPreviewCells, setItemPreviewCells] = useState(null);
 
   // Ref to GameBoard component for measuring absolute screen position
   const gameBoardRef = useRef(null);
@@ -213,15 +221,13 @@ export default function GameScreen() {
       }, GAME_CONFIG.NYAN_CAT_ANIMATION_DURATION);
     }
 
-    // Check if placed piece has any red SVG refs and track it
-    const hasRedSvg = piece.svgRefs && piece.svgRefs.some(ref => ref === SVG_IDS.SOLID_RED);
-    if (hasRedSvg) {
+    // Check if placed piece is red and add bomb to inventory
+    if (isRedPiece(piece)) {
       setRedPiecesPlaced(prevCount => {
         const newCount = prevCount + 1;
-        // When required red pieces are placed, generate a bomb piece
+        // When required red pieces are placed, add bomb to inventory
         if (newCount === GAME_CONFIG.RED_PIECES_FOR_BOMB) {
-          const bombPiece = { ...createBombPiece(), isPlaced: false };
-          setPieces(prevPieces => [...prevPieces, bombPiece]);
+          setInventory(prevInv => addItemToInventory(prevInv, ITEM_TYPES.BOMB, 1));
           return 0; // Reset counter
         }
         return newCount;
@@ -302,6 +308,83 @@ export default function GameScreen() {
     placePiece(piece);
   }, [dragState, placePiece]);
 
+  // Item drag handlers
+  const handleItemDragStart = useCallback((itemType) => {
+    console.log('Item drag started for item:', itemType, " inventory:", inventory);
+    if (!hasItem(inventory, itemType)) return;
+
+    setItemDragState({ itemType });
+    setItemPreviewCells(null);
+  }, [inventory]);
+
+  const handleItemDragMove = useCallback((itemType, screenX, screenY) => {
+    const currentBoardLayout = boardLayoutRef.current;
+    const currentGridState = gridStateRef.current;
+
+    if (!currentBoardLayout || !currentGridState) return;
+
+    // Convert touch to grid position (center cell)
+    const gridPos = touchToPlacement(screenX, screenY, [[1]], currentBoardLayout);
+
+    if (!gridPos) {
+      setItemPreviewCells([]);
+      return;
+    }
+
+    // Get cells in bomb radius for preview
+    const previewCells = getCellsInRadius(
+      gridPos.row,
+      gridPos.col,
+      GAME_CONFIG.BOMB_SIZE,
+      GAME_CONFIG.BOARD_SIZE,
+      currentGridState,
+      false // Show all cells in radius
+    );
+
+    setItemPreviewCells(previewCells);
+  }, []);
+
+  const handleItemDragEnd = useCallback((itemType, screenX, screenY) => {
+    const currentBoardLayout = boardLayoutRef.current;
+    const currentGridState = gridStateRef.current;
+
+    setItemDragState(null);
+    setItemPreviewCells(null);
+
+    if (!currentBoardLayout || !currentGridState) return;
+
+    // Get drop position
+    const gridPos = touchToPlacement(screenX, screenY, [[1]], currentBoardLayout);
+
+    if (!gridPos) return; // Invalid drop position
+
+    // Use the item
+    if (itemType === ITEM_TYPES.BOMB) {
+      // Remove from inventory
+      const newInventory = removeItemFromInventory(inventory, ITEM_TYPES.BOMB);
+      if (!newInventory) return; // Safety check
+
+      // Get cells to clear and animate using utility
+      const { cellsToAnimate, clearedGrid } = useBombItem(
+        currentGridState,
+        gridPos.row,
+        gridPos.col,
+        GAME_CONFIG.BOMB_SIZE,
+        GAME_CONFIG.BOARD_SIZE
+      );
+
+      setClearingCells(cellsToAnimate);
+
+      // Clear after animation
+      setTimeout(() => {
+        setGridState(clearedGrid);
+        setClearingCells(null);
+      }, 400);
+
+      setInventory(newInventory);
+    }
+  }, [inventory]);
+
   const handleRestart = useCallback(async () => {
     // Reset game state
     setScore(GAME_CONFIG.INITIAL_SCORE);
@@ -312,6 +395,10 @@ export default function GameScreen() {
     setPreviewCells(null);
     setPreviewValid(true);
     setClearingCells(null);
+    setInventory({ [ITEM_TYPES.BOMB]: 0 });
+    setItemDragState(null);
+    setItemPreviewCells(null);
+    setRedPiecesPlaced(0);
 
     // Reload max score in case it was updated
     const max = await getMaxScore();
@@ -324,16 +411,28 @@ export default function GameScreen() {
         <ScoreCounter score={score} maxScore={maxScore} />
       </View>
 
-      <View style={styles.boardContainer}>
-        <GameBoard
-          ref={gameBoardRef}
-          size={GAME_CONFIG.BOARD_SIZE}
-          gridState={gridState}
-          previewCells={previewCells}
-          previewValid={previewValid}
-          clearingCells={clearingCells}
-          onLayout={getBoardLayout}
-        />
+      <View style={styles.gameAreaContainer}>
+        <View style={styles.boardContainer}>
+          <GameBoard
+            ref={gameBoardRef}
+            size={GAME_CONFIG.BOARD_SIZE}
+            gridState={gridState}
+            previewCells={previewCells}
+            previewValid={previewValid}
+            clearingCells={clearingCells}
+            itemPreviewCells={itemPreviewCells}
+            onLayout={getBoardLayout}
+          />
+        </View>
+
+        <View style={styles.inventoryContainer}>
+          <ItemInventory
+            inventory={inventory}
+            onItemDragStart={handleItemDragStart}
+            onItemDragMove={handleItemDragMove}
+            onItemDragEnd={handleItemDragEnd}
+          />
+        </View>
       </View>
 
       <View style={styles.pieceSelectorContainer}>
@@ -367,8 +466,19 @@ const styles = StyleSheet.create({
     marginTop: 15,
     marginBottom: 40,
   },
-  boardContainer: {
+  gameAreaContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
     marginBottom: 40,
+    width: '100%',
+    paddingHorizontal: 10,
+  },
+  boardContainer: {
+    // marginBottom moved to gameAreaContainer
+  },
+  inventoryContainer: {
+    marginLeft: 15,
   },
   pieceSelectorContainer: {
     width: '100%',

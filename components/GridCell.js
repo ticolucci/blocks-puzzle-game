@@ -8,7 +8,7 @@ import { renderSVG } from '../constants/svgRegistry';
  * Individual grid cell component with preview support
  * Memoized to prevent unnecessary re-renders during drag operations
  */
-function GridCell({ row, col, filled = false, svgRef = null, isPreview = false, previewValid = true, isClearing = false }) {
+function GridCell({ row, col, filled = false, svgRef = null, isPreview = false, previewValid = true, isClearing = false, isItemPreview = false }) {
   return (
     <View
       testID={`grid-cell-${row}-${col}`}
@@ -18,6 +18,7 @@ function GridCell({ row, col, filled = false, svgRef = null, isPreview = false, 
         isPreview && previewValid && styles.previewValid,
         isPreview && !previewValid && styles.previewInvalid,
         isClearing && styles.clearing,
+        isItemPreview && styles.itemPreview,
       ]}
     >
       {/* Render SVG if cell is filled and has svgRef */}
@@ -34,6 +35,7 @@ GridCell.propTypes = {
   isPreview: PropTypes.bool,
   previewValid: PropTypes.bool,
   isClearing: PropTypes.bool,
+  isItemPreview: PropTypes.bool,
 };
 
 // Memoize to prevent unnecessary re-renders of 100 cells during drag operations
@@ -55,5 +57,9 @@ const styles = StyleSheet.create({
   },
   clearing: {
     backgroundColor: COLORS.CELL_CLEARING,
+  },
+  itemPreview: {
+    backgroundColor: '#FFE0B2', // Orange tint for bomb preview
+    opacity: 0.7,
   },
 });

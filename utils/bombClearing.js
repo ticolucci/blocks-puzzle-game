@@ -65,3 +65,29 @@ export function clearBombRadius(gridState, bombRow, bombCol, size) {
 
   return newGrid;
 }
+
+/**
+ * Processes a bomb item usage - gets cells to animate and cleared grid
+ * @param {Array} gridState - Current grid state
+ * @param {number} bombRow - Row position where bomb is used
+ * @param {number} bombCol - Column position where bomb is used
+ * @param {number} size - Size of the bomb clearing area
+ * @param {number} boardSize - Size of the board
+ * @returns {Object} { cellsToAnimate: Array, clearedGrid: Array }
+ */
+export function useBombItem(gridState, bombRow, bombCol, size, boardSize) {
+  // Get filled cells for animation
+  const cellsToAnimate = getCellsInRadius(
+    bombRow,
+    bombCol,
+    size,
+    boardSize,
+    gridState,
+    true // Only filled cells
+  );
+
+  // Get cleared grid
+  const clearedGrid = clearBombRadius(gridState, bombRow, bombCol, size);
+
+  return { cellsToAnimate, clearedGrid };
+}

@@ -56,6 +56,7 @@ const GameBoard = forwardRef(({
   previewCells = null,
   previewValid = true,
   clearingCells = null,
+  itemPreviewCells = null,
 }, ref) => {
   // Ref to the View component for measuring
   const viewRef = useRef(null);
@@ -78,6 +79,9 @@ const GameBoard = forwardRef(({
   // Optimized clearing cell lookup
   const isClearingCell = usePreviewCells(clearingCells);
 
+  // Optimized item preview cell lookup
+  const isItemPreviewCell = usePreviewCells(itemPreviewCells);
+
   return (
     <View ref={viewRef} style={styles.container} onLayout={onLayout}>
       {gridData.map((row, rowIndex) => (
@@ -92,6 +96,7 @@ const GameBoard = forwardRef(({
               isPreview={isPreviewCell(cell.row, cell.col)}
               previewValid={previewValid}
               isClearing={isClearingCell(cell.row, cell.col)}
+              isItemPreview={isItemPreviewCell(cell.row, cell.col)}
             />
           ))}
         </View>
@@ -123,6 +128,12 @@ GameBoard.propTypes = {
   ),
   previewValid: PropTypes.bool,
   clearingCells: PropTypes.arrayOf(
+    PropTypes.shape({
+      row: PropTypes.number,
+      col: PropTypes.number,
+    })
+  ),
+  itemPreviewCells: PropTypes.arrayOf(
     PropTypes.shape({
       row: PropTypes.number,
       col: PropTypes.number,

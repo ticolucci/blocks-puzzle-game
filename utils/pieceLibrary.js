@@ -280,6 +280,8 @@ export function areAllPiecesPlaced(pieces) {
 
 /**
  * Creates a bomb piece
+ * @deprecated Bombs are now items in the inventory system, not pieces
+ * This function is kept for backwards compatibility with tests
  * @returns {Object} A bomb piece object
  */
 export function createBombPiece() {

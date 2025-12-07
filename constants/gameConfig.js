@@ -25,8 +25,26 @@ export const GAME_CONFIG = {
   RAINBOW_PROBABILITY: 0.1, // 10% chance to generate a rainbow piece
   NYAN_CAT_ANIMATION_DURATION: 2000, // Nyan cat animation duration in milliseconds
   NYAN_CAT_START_POSITION: -200, // Starting X position (off-screen left)
-  NYAN_CAT_END_POSITION: 500, // Ending X position (off-screen right)
+  NYAN_CAT_END_POSITION: 800, // Ending X position (off-screen right)
   NYAN_CAT_VERTICAL_POSITION: '40%', // Vertical position on screen
+  INVENTORY_WIDTH: 50, // Width of inventory panel
+  INVENTORY_GAP: 10, // Gap between inventory items
+};
+
+// Animation constants for drag interactions
+export const DRAG_ANIMATION = {
+  FRICTION: 8,
+  TENSION: 40,
+  SPRING_CONFIG: {
+    friction: 8,
+    tension: 40,
+    useNativeDriver: true,
+  },
+  CENTER_CONFIG: {
+    friction: 40,
+    tension: 300,
+    useNativeDriver: true,
+  },
 };
 
 export const COLORS = {
@@ -38,6 +56,7 @@ export const COLORS = {
   PREVIEW_VALID: 'rgba(76, 175, 80, 0.3)', // Green with 30% opacity
   PREVIEW_INVALID: 'rgba(244, 67, 54, 0.3)', // Red with 30% opacity
   RED: '#FF0000',
+  ORANGE: '#FFA500',
   BLUE: '#0000FF',
   GREEN: '#00FF00',
   YELLOW: '#FFFF00',
@@ -48,19 +67,19 @@ export const COLORS = {
 export const COLOR_POOL = [
   COLORS.RED,
   COLORS.BLUE,
-  '#00FF00', // green
-  '#FFFF00', // yellow
-  '#800080', // purple
-  '#FFC0CB', // pink
+  COLORS.GREEN,
+  COLORS.YELLOW,
+  COLORS.PURPLE,
+  COLORS.PINK,
 ];
 
 export const RAINBOW_COLORS = [
-  '#FF0000', // Red
-  '#FFA500', // Orange
-  '#FFFF00', // Yellow
-  '#00FF00', // Green
-  '#0000FF', // Blue
-  '#4B0082', // Indigo
+  COLORS.RED,
+  COLORS.ORANGE,
+  COLORS.YELLOW,
+  COLORS.GREEN,
+  COLORS.BLUE,
+  COLORS.PURPLE,
 ];
 
 // SVG IDs for piece rendering
