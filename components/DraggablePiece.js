@@ -1,8 +1,13 @@
 import { useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Animated, PanResponder, View } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
 import Piece from './Piece';
-import { GAME_CONFIG } from '../constants/gameConfig';
 
 // Animation timing constants for return-to-origin animation
 const ANIMATION_FRICTION = 8;
@@ -10,20 +15,18 @@ const ANIMATION_TENSION = 40;
 
 // Animation configuration for spring animation
 const SPRING_CONFIG = {
-  friction: ANIMATION_FRICTION,
-  tension: ANIMATION_TENSION,
-  useNativeDriver: true,
+  damping: ANIMATION_FRICTION * 2.5,
+  stiffness: ANIMATION_TENSION * 2.5,
 };
 
 // Quick animation for centering piece under finger after pickup
 const CENTER_ANIMATION_CONFIG = {
-  friction: 40,
-  tension: 300,
-  useNativeDriver: true,
+  damping: 40 * 2.5,
+  stiffness: 300 * 2.5,
 };
 
 /**
- * A draggable wrapper for the Piece component with PanResponder gesture handling
+ * A draggable wrapper for the Piece component with gesture handling
  * Provides smooth drag-and-drop interaction with return-to-origin animation
  *
  * @component
@@ -58,11 +61,10 @@ function DraggablePiece({
   selectorScale = 1.0,
   testID,
 }) {
-  // Animated value for smooth dragging
-  const pan = useRef(new Animated.ValueXY()).current;
-
-  // Animated value for scale (starts at selectorScale, scales to 1.0 when dragging)
-  const scale = useRef(new Animated.Value(selectorScale)).current;
+  // Animated values for smooth dragging
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const scale = useSharedValue(selectorScale);
 
   // Ref to the View component for measuring
   const viewRef = useRef(null);
@@ -73,159 +75,115 @@ function DraggablePiece({
   // Store the initial centering offset applied when picking up the piece
   const initialOffset = useRef({ x: 0, y: 0 });
 
-  // Helper function to animate scale to a target value
-  const animateScaleTo = (targetValue, config = SPRING_CONFIG) => {
-    Animated.spring(scale, {
-      toValue: targetValue,
-      ...config,
-    }).start();
+  // Callbacks that need to be called from the gesture
+  const handleDragStart = () => {
+    if (onDragStart) {
+      onDragStart(piece);
+    }
   };
 
-  // PanResponder for gesture handling
-  const panResponder = useRef(
-    PanResponder.create({
-      // Should this component respond to pan gestures?
-      onStartShouldSetPanResponder: () => !isPlaced && !disabled,
-      onMoveShouldSetPanResponder: () => !isPlaced && !disabled,
+  const handleDragMove = (pageX, pageY) => {
+    if (onDragMove) {
+      onDragMove(piece, pageX, pageY);
+    }
+  };
 
-      // Gesture started
-      onPanResponderGrant: (event) => {
-        if (!isPlaced && !disabled) {
-          // Animate scale to full size (1.0) when dragging starts
-          animateScaleTo(1.0, CENTER_ANIMATION_CONFIG);
+  const handleDragEnd = () => {
+    if (onDragEnd) {
+      onDragEnd(piece);
+    }
+  };
 
-          // Check if we have valid pre-measured layout (width > 0 means measurement completed)
-          if (pieceLayout.current.width > 0) {
-            // Fast path: use pre-measured layout
-            // Get scaled dimensions from measurement
-            const scaledWidth = pieceLayout.current.width;
-            const scaledHeight = pieceLayout.current.height;
+  // Pan gesture handler
+  const panGesture = Gesture.Pan()
+    .enabled(!isPlaced && !disabled)
+    .onStart((event) => {
+      // Animate scale to full size (1.0) when dragging starts
+      scale.value = withSpring(1.0, CENTER_ANIMATION_CONFIG);
 
-            // Calculate piece center at current (scaled) position
-            // When piece scales from center, the center position stays the same
-            const pieceCenterX = pieceLayout.current.x + (scaledWidth / 2);
-            const pieceCenterY = pieceLayout.current.y + (scaledHeight / 2);
+      // Check if we have valid pre-measured layout (width > 0 means measurement completed)
+      if (pieceLayout.current.width > 0) {
+        // Fast path: use pre-measured layout
+        // Get scaled dimensions from measurement
+        const scaledWidth = pieceLayout.current.width;
+        const scaledHeight = pieceLayout.current.height;
 
-            // Offset needed to center piece under finger
-            initialOffset.current = {
-              x: event.nativeEvent.pageX - pieceCenterX,
-              y: event.nativeEvent.pageY - pieceCenterY,
-            };
+        // Calculate piece center at current (scaled) position
+        // When piece scales from center, the center position stays the same
+        const pieceCenterX = pieceLayout.current.x + (scaledWidth / 2);
+        const pieceCenterY = pieceLayout.current.y + (scaledHeight / 2);
 
-            // Animate piece to center under the finger
-            Animated.spring(pan, {
-              toValue: initialOffset.current,
-              ...CENTER_ANIMATION_CONFIG,
-            }).start();
-          } else {
-            // Fallback: measure now if layout hasn't been captured yet
-            if (viewRef.current) {
-              event.persist();
-              viewRef.current.measureInWindow((x, y, width, height) => {
-                // Get scaled dimensions from measurement
-                const scaledWidth = width;
-                const scaledHeight = height;
+        // Offset needed to center piece under finger
+        initialOffset.current = {
+          x: event.absoluteX - pieceCenterX,
+          y: event.absoluteY - pieceCenterY,
+        };
 
-                // Calculate piece center at current (scaled) position
-                // When piece scales from center, the center position stays the same
-                const pieceCenterX = x + (scaledWidth / 2);
-                const pieceCenterY = y + (scaledHeight / 2);
+        // Animate piece to center under the finger
+        translateX.value = withSpring(initialOffset.current.x, CENTER_ANIMATION_CONFIG);
+        translateY.value = withSpring(initialOffset.current.y, CENTER_ANIMATION_CONFIG);
+      }
 
-                // Offset needed to center piece under finger
-                initialOffset.current = {
-                  x: event.nativeEvent.pageX - pieceCenterX,
-                  y: event.nativeEvent.pageY - pieceCenterY,
-                };
-
-                // Animate piece to center under the finger
-                Animated.spring(pan, {
-                  toValue: initialOffset.current,
-                  ...CENTER_ANIMATION_CONFIG,
-                }).start();
-              });
-            }
-          }
-
-          if (onDragStart) {
-            onDragStart(piece);
-          }
-        }
-      },
-
-      // Gesture moving
-      onPanResponderMove: (event, gestureState) => {
-        if (!isPlaced && !disabled) {
-          // Update animated position, adding the initial centering offset
-          // to the gesture displacement so the piece stays centered under the finger
-          pan.setValue({
-            x: initialOffset.current.x + gestureState.dx,
-            y: initialOffset.current.y + gestureState.dy
-          });
-
-          // Call onDragMove with current touch position (piece is centered under finger)
-          if (onDragMove) {
-            onDragMove(
-              piece,
-              event.nativeEvent.pageX,
-              event.nativeEvent.pageY
-            );
-          }
-        }
-      },
-
-      // Gesture released
-      onPanResponderRelease: () => {
-        if (!isPlaced && !disabled) {
-          if (onDragEnd) {
-            onDragEnd(piece);
-          }
-
-          // Reset initial offset for next drag
-          initialOffset.current = { x: 0, y: 0 };
-
-          // Animate scale back to selector size
-          animateScaleTo(selectorScale);
-
-          // Return to origin with spring animation
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            ...SPRING_CONFIG,
-          }).start();
-        }
-      },
-
-      // Gesture terminated (interrupted by another gesture)
-      onPanResponderTerminate: () => {
-        if (!isPlaced && !disabled) {
-          // Reset initial offset for next drag
-          initialOffset.current = { x: 0, y: 0 };
-
-          // Animate scale back to selector size
-          animateScaleTo(selectorScale);
-
-          // Return to origin with spring animation
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            ...SPRING_CONFIG,
-          }).start();
-        }
-      },
+      runOnJS(handleDragStart)();
     })
-  ).current;
+    .onUpdate((event) => {
+      // Update animated position, adding the initial centering offset
+      // to the gesture displacement so the piece stays centered under the finger
+      translateX.value = initialOffset.current.x + event.translationX;
+      translateY.value = initialOffset.current.y + event.translationY;
+
+      // Call onDragMove with current touch position (piece is centered under finger)
+      runOnJS(handleDragMove)(event.absoluteX, event.absoluteY);
+    })
+    .onEnd(() => {
+      runOnJS(handleDragEnd)();
+
+      // Reset initial offset for next drag
+      initialOffset.current = { x: 0, y: 0 };
+
+      // Animate scale back to selector size
+      scale.value = withSpring(selectorScale, SPRING_CONFIG);
+
+      // Return to origin with spring animation
+      translateX.value = withSpring(0, SPRING_CONFIG);
+      translateY.value = withSpring(0, SPRING_CONFIG);
+    })
+    .onFinalize(() => {
+      // Gesture terminated (interrupted by another gesture)
+      // Reset initial offset for next drag
+      initialOffset.current = { x: 0, y: 0 };
+
+      // Animate scale back to selector size
+      scale.value = withSpring(selectorScale, SPRING_CONFIG);
+
+      // Return to origin with spring animation
+      translateX.value = withSpring(0, SPRING_CONFIG);
+      translateY.value = withSpring(0, SPRING_CONFIG);
+    });
+
+  // Animated style for transforms
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
+  }));
 
   // Sync scale with selectorScale prop and reset position when placed
   useEffect(() => {
     // Always keep scale in sync with selectorScale
-    scale.setValue(selectorScale);
+    scale.value = selectorScale;
 
     // Reset position when piece is placed
     if (isPlaced) {
-      pan.setValue({ x: 0, y: 0 });
+      translateX.value = 0;
+      translateY.value = 0;
     }
-  }, [isPlaced, selectorScale, pan, scale]);
+  }, [isPlaced, selectorScale, translateX, translateY, scale]);
 
   // Handler to measure piece position when layout changes
-  const handleLayout = (event) => {
+  const handleLayout = () => {
     if (viewRef.current) {
       viewRef.current.measureInWindow((x, y, width, height) => {
         pieceLayout.current = { x, y, width, height };
@@ -234,21 +192,16 @@ function DraggablePiece({
   };
 
   return (
-    <Animated.View
-      ref={viewRef}
-      testID={testID}
-      onLayout={handleLayout}
-      {...panResponder.panHandlers}
-      style={{
-        transform: [
-          { translateX: pan.x },
-          { translateY: pan.y },
-          { scale: scale },
-        ],
-      }}
-    >
-      <Piece shape={piece.shape} svgRefs={piece.svgRefs} type={piece.type} />
-    </Animated.View>
+    <GestureDetector gesture={panGesture}>
+      <Animated.View
+        ref={viewRef}
+        testID={testID}
+        onLayout={handleLayout}
+        style={animatedStyle}
+      >
+        <Piece shape={piece.shape} svgRefs={piece.svgRefs} type={piece.type} />
+      </Animated.View>
+    </GestureDetector>
   );
 }
 

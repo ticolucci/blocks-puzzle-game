@@ -1,6 +1,8 @@
 import { useRef } from 'react';
 import PropTypes from 'prop-types';
-import { Animated, PanResponder, View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { ITEM_CONFIG } from '../constants/itemTypes';
 import { DRAG_ANIMATION, GAME_CONFIG } from '../constants/gameConfig';
 import CountBadge from './CountBadge';
@@ -23,93 +25,90 @@ function ItemSlot({
   onDragMove,
   onDragEnd,
 }) {
-  const pan = useRef(new Animated.ValueXY()).current;
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
   const isEnabled = count > 0;
   const itemConfig = ITEM_CONFIG[itemType];
 
-  // PanResponder for gesture handling
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => isEnabled,
-      onMoveShouldSetPanResponder: () => isEnabled,
+  // Store the absolute position from the last event
+  const lastEventRef = useRef({ pageX: 0, pageY: 0 });
 
-      onPanResponderGrant: (event) => {
-        if (isEnabled && onDragStart) {
-          onDragStart(itemType);
-        }
-      },
-
-      onPanResponderMove: (event, gestureState) => {
-        if (isEnabled) {
-          pan.setValue({
-            x: gestureState.dx,
-            y: gestureState.dy
-          });
-
-          if (onDragMove) {
-            onDragMove(
-              itemType,
-              event.nativeEvent.pageX,
-              event.nativeEvent.pageY
-            );
-          }
-        }
-      },
-
-      onPanResponderRelease: (event) => {
-        if (isEnabled) {
-          if (onDragEnd) {
-            onDragEnd(
-              itemType,
-              event.nativeEvent.pageX,
-              event.nativeEvent.pageY
-            );
-          }
-
-          // Return to origin
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            ...DRAG_ANIMATION.SPRING_CONFIG,
-          }).start();
-        }
-      },
-
-      onPanResponderTerminate: () => {
-        if (!isDisabled) {
-          // Return to origin
-          Animated.spring(pan, {
-            toValue: { x: 0, y: 0 },
-            ...DRAG_ANIMATION.SPRING_CONFIG,
-          }).start();
-        }
-      },
+  // Pan gesture handler
+  const panGesture = Gesture.Pan()
+    .enabled(isEnabled)
+    .onStart(() => {
+      if (onDragStart) {
+        onDragStart(itemType);
+      }
     })
-  ).current;
+    .onUpdate((event) => {
+      translateX.value = event.translationX;
+      translateY.value = event.translationY;
+
+      // Store absolute coordinates for callbacks
+      lastEventRef.current = {
+        pageX: event.absoluteX,
+        pageY: event.absoluteY,
+      };
+
+      if (onDragMove) {
+        onDragMove(
+          itemType,
+          event.absoluteX,
+          event.absoluteY
+        );
+      }
+    })
+    .onEnd(() => {
+      if (onDragEnd) {
+        onDragEnd(
+          itemType,
+          lastEventRef.current.pageX,
+          lastEventRef.current.pageY
+        );
+      }
+
+      // Return to origin with spring animation
+      translateX.value = withSpring(0, DRAG_ANIMATION.SPRING_CONFIG);
+      translateY.value = withSpring(0, DRAG_ANIMATION.SPRING_CONFIG);
+    })
+    .onFinalize(() => {
+      // Also reset on gesture cancellation
+      translateX.value = withSpring(0, DRAG_ANIMATION.SPRING_CONFIG);
+      translateY.value = withSpring(0, DRAG_ANIMATION.SPRING_CONFIG);
+    });
+
+  // Animated style for drag transformation
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+    ],
+  }));
 
   return (
-    <Animated.View
-      testID="item-slot"
-      accessibilityLabel={`${itemConfig.name}, ${count} available`}
-      accessibilityState={{ disabled: !isEnabled }}
-      {...panResponder.panHandlers}
-      style={[
-        styles.container,
-        {
-          opacity: isEnabled ? 1 : 0.4,
-          transform: [
-            { translateX: pan.x },
-            { translateY: pan.y },
-          ],
-        },
-      ]}
-    >
-      <View style={styles.iconContainer}>
-        <Text style={styles.icon}>{itemConfig.icon}</Text>
-      </View>
-      {isEnabled && (
-        <CountBadge count={count} testID="item-count-badge" />
-      )}
-    </Animated.View>
+    <GestureDetector gesture={panGesture}>
+      <Animated.View
+        testID="item-slot"
+        accessibilityLabel={`${itemConfig.name}, ${count} available`}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: !isEnabled }}
+        style={[
+          styles.container,
+          {
+            opacity: isEnabled ? 1 : 0.4,
+          },
+          animatedStyle,
+        ]}
+      >
+        <View style={styles.iconContainer}>
+          <Text style={styles.icon}>{itemConfig.icon}</Text>
+        </View>
+        {isEnabled && (
+          <CountBadge count={count} testID="item-count-badge" />
+        )}
+      </Animated.View>
+    </GestureDetector>
   );
 }
 

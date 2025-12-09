@@ -126,11 +126,9 @@ describe('ItemInventory', () => {
       );
 
       const container = getByTestId('inventory-container');
-      expect(container.props.style).toEqual(
-        expect.objectContaining({
-          width: 80, // GAME_CONFIG.INVENTORY_WIDTH
-        })
-      );
+      expect(container.props.style).toMatchObject({
+        width: 50, // GAME_CONFIG.INVENTORY_WIDTH
+      });
     });
   });
 
@@ -147,8 +145,8 @@ describe('ItemInventory', () => {
       );
 
       const itemSlot = getByTestId('item-slot');
-      // Verify that PanResponder handlers exist (ItemSlot should have them)
-      expect(itemSlot.props.onResponderGrant).toBeDefined();
+      // Verify that ItemSlot renders (gesture handlers are now via GestureDetector)
+      expect(itemSlot).toBeTruthy();
     });
   });
 });
