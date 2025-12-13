@@ -66,9 +66,10 @@ export const touchToPlacement = (touchX, touchY, pieceShape, boardLayout) => {
   const touchGridRow = relY / cellSize;
 
   // Anchor position (top-left of piece) - center piece on touch
-  // Using Math.floor(x + 0.5) for symmetric rounding
-  const anchorCol = Math.floor(touchGridCol - (pieceCols - 1) / 2 + 0.5);
-  const anchorRow = Math.floor(touchGridRow - (pieceRows - 1) / 2 + 0.5);
+  // Subtract half the piece size to center it on the touch point
+  // Use Math.floor to prefer placing piece to the top-left when exactly between cells
+  const anchorCol = Math.floor(touchGridCol - (pieceCols - 1) / 2);
+  const anchorRow = Math.floor(touchGridRow - (pieceRows - 1) / 2);
 
   return { row: anchorRow, col: anchorCol };
 };

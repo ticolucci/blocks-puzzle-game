@@ -8,10 +8,15 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import Piece from './Piece';
+import { GAME_CONFIG } from '../constants/gameConfig';
 
 // Animation timing constants for return-to-origin animation
 const ANIMATION_FRICTION = 8;
 const ANIMATION_TENSION = 40;
+
+// Vertical offset in grid blocks - piece is displayed this many blocks above the finger
+const VERTICAL_OFFSET_BLOCKS = 5;
+const VERTICAL_OFFSET_PIXELS = VERTICAL_OFFSET_BLOCKS * GAME_CONFIG.CELL_SIZE;
 
 // Animation configuration for spring animation
 const SPRING_CONFIG = {
@@ -29,6 +34,10 @@ const CENTER_ANIMATION_CONFIG = {
  * A draggable wrapper for the Piece component with gesture handling
  * Provides smooth drag-and-drop interaction with return-to-origin animation
  *
+ * When dragged, the piece is positioned 5 blocks above the finger to prevent
+ * the finger from obscuring the piece. The onDragMove callback receives the
+ * piece center coordinates (not the finger position).
+ *
  * @component
  * @example
  * const piece = { shape: [[1, 1], [1, 1]], runtimeId: 1 };
@@ -36,7 +45,7 @@ const CENTER_ANIMATION_CONFIG = {
  * <DraggablePiece
  *   piece={piece}
  *   onDragStart={(p) => console.log('Started dragging', p)}
- *   onDragMove={(p, x, y) => console.log('Dragging at', x, y)}
+ *   onDragMove={(p, x, y) => console.log('Piece center at', x, y)}
  *   onDragEnd={(p) => console.log('Finished dragging', p)}
  *   isPlaced={false}
  *   selectorScale={0.65}
@@ -44,7 +53,7 @@ const CENTER_ANIMATION_CONFIG = {
  *
  * @param {object} piece - The piece data with shape and metadata
  * @param {function} onDragStart - Callback when drag starts, receives piece
- * @param {function} onDragMove - Callback during drag movement, receives piece, pageX, pageY
+ * @param {function} onDragMove - Callback during drag movement, receives piece and piece center coordinates (x, y)
  * @param {function} onDragEnd - Callback when drag ends, receives piece
  * @param {boolean} isPlaced - Whether the piece has been placed (disables dragging)
  * @param {boolean} disabled - Whether dragging is disabled
@@ -113,13 +122,14 @@ function DraggablePiece({
         const pieceCenterX = pieceLayout.current.x + (scaledWidth / 2);
         const pieceCenterY = pieceLayout.current.y + (scaledHeight / 2);
 
-        // Offset needed to center piece under finger
+        // Offset needed to center piece on finger horizontally, and VERTICAL_OFFSET_PIXELS above finger
+        // This prevents the finger from obscuring the piece during drag
         initialOffset.current = {
           x: event.absoluteX - pieceCenterX,
-          y: event.absoluteY - pieceCenterY,
+          y: event.absoluteY - pieceCenterY - VERTICAL_OFFSET_PIXELS,
         };
 
-        // Animate piece to center under the finger
+        // Animate piece to center horizontally under the finger, but vertically above it
         translateX.value = withSpring(initialOffset.current.x, CENTER_ANIMATION_CONFIG);
         translateY.value = withSpring(initialOffset.current.y, CENTER_ANIMATION_CONFIG);
       }
@@ -132,8 +142,11 @@ function DraggablePiece({
       translateX.value = initialOffset.current.x + event.translationX;
       translateY.value = initialOffset.current.y + event.translationY;
 
-      // Call onDragMove with current touch position (piece is centered under finger)
-      runOnJS(handleDragMove)(event.absoluteX, event.absoluteY);
+      // Call onDragMove with piece center position (not finger position)
+      // Piece center is VERTICAL_OFFSET_PIXELS above the finger
+      const pieceCenterX = event.absoluteX;
+      const pieceCenterY = event.absoluteY - VERTICAL_OFFSET_PIXELS;
+      runOnJS(handleDragMove)(pieceCenterX, pieceCenterY);
     })
     .onEnd(() => {
       runOnJS(handleDragEnd)();
