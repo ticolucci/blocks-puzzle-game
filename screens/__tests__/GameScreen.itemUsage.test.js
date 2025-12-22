@@ -143,6 +143,12 @@ describe('GameScreen - Item Usage', () => {
       // This test will verify count decreases after use
       // Will be implemented in GREEN phase
     });
+
+    test('bomb usage awards points for each block destroyed', async () => {
+      // This test verifies that using a bomb awards points based on destroyed blocks
+      // Will be implemented once bomb scoring is integrated into GameScreen
+      // Expected: 10 points per block destroyed (same as placement scoring)
+    });
   });
 
   describe('Inventory - Game Restart', () => {

@@ -16,6 +16,7 @@ import { getFilledRows, getFilledColumns, clearLines, calculateClearScore } from
 import { clearBombRadius, getCellsInRadius, useBombItem } from '../utils/bombClearing';
 import { getMaxScore } from '../utils/highScores';
 import { calculatePlacementScore } from '../utils/placementScoring';
+import { calculateBombDestructionScore } from '../utils/bombScoring';
 import { isRedPiece, addItemToInventory, removeItemFromInventory, hasItem } from '../utils/itemGeneration';
 
 export default function GameScreen() {
@@ -150,6 +151,10 @@ export default function GameScreen() {
           newGrid,
           true // Only animate filled cells
         );
+
+        // Award points for destroyed blocks
+        const destructionPoints = calculateBombDestructionScore(cellsToAnimate.length);
+        setScore(prevScore => prevScore + destructionPoints);
 
         // Show clearing animation
         setClearingCells(cellsToAnimate);
@@ -372,6 +377,10 @@ export default function GameScreen() {
         GAME_CONFIG.BOMB_SIZE,
         GAME_CONFIG.BOARD_SIZE
       );
+
+      // Calculate and award points for destroyed blocks
+      const destructionScore = calculateBombDestructionScore(cellsToAnimate.length);
+      setScore(prevScore => prevScore + destructionScore);
 
       setClearingCells(cellsToAnimate);
 
